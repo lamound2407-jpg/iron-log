@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Iron Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#161510;
+    --ink-2:#1d1c16;
+    --card:#211f19;
+    --card-edge:#3a372e;
+    --iron:#8b8680;
+    --iron-dim:#5c594f;
+    --chalk:#f3efe4;
+    --chalk-dim:#c9c4b5;
+    --tyler:#7fb0d4;
+    --tyler-dim:#3f5164;
+    --beth:#e2988c;
+    --beth-dim:#5a4038;
+    --good:#9bc27c;
+    --warn:#e0b64f;
+    --radius:14px;
+    --font-display:'Oswald', 'Arial Narrow', sans-serif;
+    --font-mono:'IBM Plex Mono', 'Courier New', monospace;
+    --font-body:'Work Sans', -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.03), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(255,255,255,0.025), transparent 55%),
+      var(--ink);
+    color:var(--chalk);
+    font-family:var(--font-body);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:20px 16px 80px;}
+
+  /* ---------- Header ---------- */
+  header{padding:6px 2px 20px;border-bottom:1px dashed var(--iron-dim);margin-bottom:20px;}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--iron);margin:0 0 4px;}
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:34px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    margin:0 0 6px;
+    color:var(--chalk);
+  }
+  .sub{font-size:14px;color:var(--chalk-dim);margin:0 0 14px;}
+  .date-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .date-row label{font-family:var(--font-mono);font-size:11px;color:var(--iron);text-transform:uppercase;letter-spacing:.08em;}
+  input[type="date"]{
+    background:var(--ink-2);border:1px solid var(--card-edge);color:var(--chalk);
+    font-family:var(--font-mono);font-size:13px;padding:6px 10px;border-radius:8px;
+  }
+  .hist-btn{
+    margin-left:auto;background:none;border:1px solid var(--card-edge);color:var(--chalk-dim);
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    padding:8px 12px;border-radius:8px;cursor:pointer;transition:border-color .15s, color .15s;
+  }
+  .hist-btn:hover{border-color:var(--iron);color:var(--chalk);}
+  .hist-btn:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var(--warn);outline-offset:2px;}
+
+  .today-cta-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .today-cta{
+    background:linear-gradient(135deg, var(--tyler), var(--beth));
+    color:var(--ink);border:none;font-family:var(--font-display);font-weight:600;
+    font-size:15px;letter-spacing:.03em;text-transform:uppercase;
+    padding:13px 20px;border-radius:10px;cursor:pointer;
+  }
+  .today-cta:hover{filter:brightness(1.06);}
+  .collapse-btn{
+    background:none;border:1px solid var(--card-edge);color:var(--chalk-dim);
+    font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    padding:9px 12px;border-radius:8px;cursor:pointer;
+  }
+  .collapse-btn:hover{border-color:var(--iron);color:var(--chalk);}
+
+  /* ---------- Exercise cards ---------- */
+  .grid{display:flex;flex-direction:column;gap:14px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-edge);
+    border-radius:var(--radius);
+    padding:16px 16px 14px;
+  }
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .card-toggle{
+    display:flex;align-items:flex-start;gap:10px;background:none;border:none;color:var(--chalk);
+    cursor:pointer;text-align:left;padding:0;flex:1;min-width:0;
+  }
+  .card-toggle .car{color:var(--iron);font-size:13px;margin-top:5px;transition:transform .15s;flex-shrink:0;}
+  .card-toggle[aria-expanded="true"] .car{transform:rotate(90deg);}
+  .card-toggle-text{display:flex;flex-direction:column;min-width:0;}
+  .ex-name{font-family:var(--font-display);font-size:19px;font-weight:600;letter-spacing:.02em;color:var(--chalk);margin:0;}
+  .ex-equip{font-size:12px;color:var(--iron);margin:2px 0 0;}
+  .card-top-right{display:flex;align-items:flex-start;gap:8px;flex-shrink:0;}
+  .plates{display:flex;gap:8px;flex-shrink:0;}
+  .plate{
+    width:52px;height:52px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    border:3px solid var(--pcolor);
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.06), transparent 60%), var(--ink-2);
+    position:relative;
+  }
+  .plate .n{font-family:var(--font-mono);font-weight:600;font-size:13px;color:var(--chalk);line-height:1;}
+  .plate .u{font-family:var(--font-mono);font-size:8px;color:var(--chalk-dim);letter-spacing:.05em;}
+  .plate .trend{position:absolute;top:-6px;right:-6px;font-size:11px;background:var(--ink);border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border:1px solid var(--card-edge);}
+  .ex-del{
+    background:none;border:1px solid var(--card-edge);color:var(--iron);font-size:15px;line-height:1;
+    width:26px;height:26px;border-radius:50%;cursor:pointer;flex-shrink:0;
+  }
+  .ex-del:hover{border-color:var(--warn);color:var(--warn);}
+
+  .card-body{margin-top:14px;display:flex;flex-direction:column;gap:14px;}
+  .person-block{border-left:4px solid var(--pcolor);padding-left:12px;}
+  .pb-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .pb-head .who{font-weight:600;color:var(--pcolor);font-family:var(--font-body);font-size:14px;}
+  .pb-head .last{font-family:var(--font-mono);font-size:11.5px;color:var(--chalk-dim);}
+  .sets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+  .set-field label{display:block;font-family:var(--font-mono);font-size:10px;color:var(--iron);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+  .set-field input{
+    width:100%;background:var(--ink);border:1px solid var(--card-edge);color:var(--chalk);
+    font-family:var(--font-mono);font-size:15px;padding:8px 6px;border-radius:8px;text-align:center;
+  }
+  .set-field input::placeholder{color:var(--iron-dim);}
+  .set-field input:focus{border-color:var(--pcolor);}
+  .row-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .save-btn{
+    background:var(--pcolor);color:var(--ink);border:none;font-family:var(--font-body);font-weight:600;
+    font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;
+  }
+  .save-btn:hover{filter:brightness(1.08);}
+  .copy-btn{
+    background:none;border:1px solid var(--card-edge);color:var(--chalk-dim);font-family:var(--font-mono);
+    font-size:11px;padding:8px 10px;border-radius:8px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:var(--iron);color:var(--chalk);}
+  .flash{font-size:12px;color:var(--good);font-family:var(--font-mono);opacity:0;transition:opacity .2s;}
+  .flash.show{opacity:1;}
+
+  /* ---------- Add exercise ---------- */
+  .add-card{
+    border:1px dashed var(--card-edge);border-radius:var(--radius);padding:14px 16px;
+    color:var(--iron);cursor:pointer;text-align:center;font-family:var(--font-mono);font-size:12px;
+    letter-spacing:.06em;text-transform:uppercase;background:none;width:100%;
+  }
+  .add-card:hover{border-color:var(--iron);color:var(--chalk);}
+  .add-form{display:flex;flex-direction:column;gap:8px;}
+  .add-form input{
+    background:var(--ink-2);border:1px solid var(--card-edge);color:var(--chalk);
+    font-family:var(--font-body);font-size:14px;padding:9px 10px;border-radius:8px;
+  }
+  .add-form .btnrow{display:flex;gap:8px;justify-content:flex-end;}
+
+  /* ---------- History ---------- */
+  .hist-panel{margin-top:22px;border-top:1px dashed var(--iron-dim);padding-top:16px;}
+  .hist-panel h2{font-family:var(--font-display);font-size:18px;letter-spacing:.03em;text-transform:uppercase;margin:0 0 10px;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--card-edge);}
+  th{font-family:var(--font-mono);color:var(--iron);text-transform:uppercase;font-size:10.5px;letter-spacing:.06em;}
+  td{color:var(--chalk-dim);}
+  td.ex{color:var(--chalk);}
+  .tag{font-family:var(--font-mono);}
+  .tag.t{color:var(--tyler);}
+  .tag.b{color:var(--beth);}
+  .empty{color:var(--iron);font-size:12px;padding:10px 0;}
+  .hist-day{margin-bottom:16px;}
+  .hist-day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .hist-day-date{font-family:var(--font-mono);font-size:13px;color:var(--chalk);font-weight:600;}
+  .del-btn{background:none;border:1px solid var(--card-edge);color:var(--iron);font-family:var(--font-mono);
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;padding:5px 9px;border-radius:6px;cursor:pointer;}
+  .del-btn:hover{border-color:var(--warn);color:var(--warn);}
+  .mini-del{background:none;border:none;color:var(--iron);cursor:pointer;font-size:12px;margin-left:6px;padding:0 2px;}
+  .mini-del:hover{color:var(--warn);}
+
+  @media (max-width:420px){
+    h1{font-size:28px;}
+    .sets{grid-template-columns:repeat(2,1fr);}
+    .plate{width:46px;height:46px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Tyler &amp; Beth</p>
+    <h1>Iron Log</h1>
+    <p class="sub">Quick set tracking. Log after each machine, no scrolling back through old notes.</p>
+    <div class="date-row">
+      <label for="date-input">Session date</label>
+      <input type="date" id="date-input">
+      <button class="hist-btn" id="hist-toggle">History</button>
+    </div>
+  </header>
+
+  <div class="today-cta-row">
+    <button class="today-cta" id="add-today-btn">+ Add Today's Workout</button>
+    <button class="collapse-btn" id="expand-all-btn">Expand all</button>
+    <button class="collapse-btn" id="collapse-all-btn">Collapse all</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <button class="add-card" id="add-toggle">+ Add an exercise</button>
+  <div id="add-form-holder"></div>
+
+  <div class="hist-panel" id="hist-panel" style="display:none;">
+    <h2>Past sessions</h2>
+    <div id="hist-content"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const DEFAULT_EXERCISES = [
+    {name:"Leg Press", equipment:"Leg press machine"},
+    {name:"Wide Pulldowns", equipment:"Cable / pulldown machine"},
+    {name:"Chest Press", equipment:"Chest press machine"},
+    {name:"Shoulder Press", equipment:"Shoulder press machine"},
+    {name:"Triceps Extensions", equipment:"Cable / machine"},
+    {name:"Abdominal Crunch", equipment:"Ab crunch machine"}
+  ];
+
+  const SEED_SESSIONS = {
+    "2026-08-10": {
+      "Leg Press": {"Tyler":[55]},
+      "Wide Pulldowns": {"Tyler":[75,75,75]},
+      "Chest Press": {"Tyler":[65]},
+      "Shoulder Press": {"Tyler":[60,55]},
+      "Triceps Extensions": {"Tyler":[90,90,92.5]},
+      "Abdominal Crunch": {"Tyler":[100]}
+    },
+    "2026-08-11": {
+      "Leg Press": {"Tyler":[65,70,75], "Beth":[65,65,65]},
+      "Wide Pulldowns": {"Tyler":[75,80,80], "Beth":[45,45,45]},
+      "Chest Press": {"Tyler":[65,65,70], "Beth":[30,30,30]},
+      "Shoulder Press": {"Tyler":[55,55,55], "Beth":[15,15,15]},
+      "Triceps Extensions": {"Tyler":[90,90,102.5], "Beth":[55,55,55]},
+      "Abdominal Crunch": {"Tyler":[100,105,105], "Beth":[65,65,105]}
+    }
+  };
+
+  const PEOPLE = [
+    {key:"Tyler", color:"var(--tyler)"},
+    {key:"Beth", color:"var(--beth)"}
+  ];
+
+  // Works both as a Claude.ai artifact (window.storage) and as a plain hosted
+  // page (falls back to the browser's own localStorage).
+  const hasArtifactStorage = (typeof window !== "undefined") && window.storage && typeof window.storage.get === "function";
+
+  const state = {
+    exercises: [],
+    sessions: {},
+    expandedCards: {},   // exercise name -> bool
+    date: todayStr(),
+    historyOpen: false,
+    addOpen: false
+  };
+
+  function todayStr(){
+    const d = new Date();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return d.getFullYear()+"-"+m+"-"+day;
+  }
+
+  function slug(s){
+    return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  }
+
+  async function storageGet(key, fallback){
+    try{
+      if(hasArtifactStorage){
+        const res = await window.storage.get(key);
+        return (res && res.value !== undefined) ? JSON.parse(res.value) : fallback;
+      }
+      const raw = localStorage.getItem(key);
+      return raw !== null ? JSON.parse(raw) : fallback;
+    }catch(e){
+      return fallback;
+    }
+  }
+  async function storageSet(key, value){
+    try{
+      if(hasArtifactStorage){
+        await window.storage.set(key, JSON.stringify(value));
+      } else {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    }catch(e){
+      console.error("Storage save failed:", e);
+    }
+  }
+
+  function fmtDate(iso){
+    if(!iso) return "";
+    const [y,m,d] = iso.split("-");
+    return m+"/"+d;
+  }
+
+  function sortedDates(){
+    return Object.keys(state.sessions).sort();
+  }
+
+  function findLatest(exName, person, beforeOrOn){
+    const dates = sortedDates().filter(d => !beforeOrOn || d <= beforeOrOn);
+    for(let i=dates.length-1;i>=0;i--){
+      const d = dates[i];
+      const sets = state.sessions[d] && state.sessions[d][exName] && state.sessions[d][exName][person];
+      if(sets && sets.length) return {date:d, sets:sets};
+    }
+    return null;
+  }
+
+  function findPrevious(exName, person, latestDate){
+    const dates = sortedDates().filter(d => d < latestDate);
+    for(let i=dates.length-1;i>=0;i--){
+      const d = dates[i];
+      const sets = state.sessions[d] && state.sessions[d][exName] && state.sessions[d][exName][person];
+      if(sets && sets.length) return {date:d, sets:sets};
+    }
+    return null;
+  }
+
+  function repWeight(sets){
+    return Math.max.apply(null, sets);
+  }
+
+  function trendArrow(exName, person){
+    const latest = findLatest(exName, person, state.date) || findLatest(exName, person, null);
+    if(!latest) return {symbol:"—", color:"var(--iron)"};
+    const prev = findPrevious(exName, person, latest.date);
+    if(!prev) return {symbol:"—", color:"var(--iron)"};
+    const a = repWeight(latest.sets), b = repWeight(prev.sets);
+    if(a > b) return {symbol:"▲", color:"var(--good)"};
+    if(a < b) return {symbol:"▼", color:"var(--warn)"};
+    return {symbol:"●", color:"var(--iron)"};
+  }
+
+  async function init(){
+    const seeded = await storageGet("il-seeded", null);
+    if(!seeded){
+      await storageSet("il-exercises", DEFAULT_EXERCISES);
+      await storageSet("il-sessions", SEED_SESSIONS);
+      await storageSet("il-seeded", true);
+    }
+    state.exercises = await storageGet("il-exercises", DEFAULT_EXERCISES);
+    state.sessions = await storageGet("il-sessions", {});
+    document.getElementById("date-input").value = state.date;
+    render();
+  }
+
+  function render(){
+    renderGrid();
+    renderHistory();
+  }
+
+  function renderGrid(){
+    const grid = document.getElementById("grid");
+    grid.innerHTML = state.exercises.map(ex => cardHTML(ex)).join("");
+    attachCardHandlers();
+  }
+
+  function plateHTML(ex, p){
+    const latest = findLatest(ex.name, p.key, state.date) || findLatest(ex.name, p.key, null);
+    const weight = latest ? repWeight(latest.sets) : null;
+    const t = trendArrow(ex.name, p.key);
+    return `<div class="plate" style="--pcolor:${p.color}">
+              <span class="trend" style="color:${t.color}">${t.symbol}</span>
+              <span class="n">${weight !== null ? weight : "–"}</span>
+              <span class="u">${weight !== null ? "lb" : p.key.slice(0,2).toUpperCase()}</span>
+            </div>`;
+  }
+
+  function cardHTML(ex){
+    const expanded = !!state.expandedCards[ex.name];
+    const domKey = slug(ex.name);
+    const plates = PEOPLE.map(p => plateHTML(ex, p)).join("");
+    const body = expanded
+      ? `<div class="card-body">${PEOPLE.map(p => personBlockHTML(ex, domKey, p)).join("")}</div>`
+      : "";
+
+    return `<div class="card">
+      <div class="card-top">
+        <button class="card-toggle" data-action="toggle-card" data-exname="${escapeHtml(ex.name)}" aria-expanded="${expanded}">
+          <span class="car">▸</span>
+          <span class="card-toggle-text">
+            <span class="ex-name">${escapeHtml(ex.name)}</span>
+            <span class="ex-equip">${escapeHtml(ex.equipment || "")}</span>
+          </span>
+        </button>
+        <div class="card-top-right">
+          <div class="plates">${plates}</div>
+          <button class="ex-del" data-action="delete-exercise" data-exname="${escapeHtml(ex.name)}" title="Remove this exercise" aria-label="Remove ${escapeHtml(ex.name)}">×</button>
+        </div>
+      </div>
+      ${body}
+    </div>`;
+  }
+
+  function personBlockHTML(ex, domKey, p){
+    const latest = findLatest(ex.name, p.key, null);
+    const lastStr = latest ? (fmtDate(latest.date) + " · " + latest.sets.join("/") + " lb") : "no sets logged yet";
+    const prefillSet1 = latest ? latest.sets[latest.sets.length-1] : "";
+
+    const setFields = [1,2,3,4].map(n => `
+      <div class="set-field">
+        <label for="s-${domKey}-${p.key}-${n}">Set ${n}</label>
+        <input type="number" step="2.5" inputmode="decimal" id="s-${domKey}-${p.key}-${n}"
+               value="${n===1 && prefillSet1 !== "" ? prefillSet1 : ""}" placeholder="–">
+      </div>`).join("");
+
+    return `<div class="person-block" style="--pcolor:${p.color}">
+      <div class="pb-head">
+        <span class="who">${p.key}</span>
+        <span class="last">${lastStr}</span>
+      </div>
+      <div class="sets">${setFields}</div>
+      <div class="row-actions">
+        <button class="save-btn" style="--pcolor:${p.color}" data-action="save" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Save ${p.key}'s sets</button>
+        <button class="copy-btn" data-action="copy" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Same weight → all sets</button>
+        <span class="flash" id="flash-${domKey}-${p.key}"></span>
+      </div>
+    </div>`;
+  }
+
+  function attachCardHandlers(){
+    document.querySelectorAll('[data-action="toggle-card"]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        const name = btn.dataset.exname;
+        state.expandedCards[name] = !state.expandedCards[name];
+        renderGrid();
+      });
+    });
+    document.querySelectorAll('[data-action="delete-exercise"]').forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const name = btn.dataset.exname;
+        const ok = confirm(`Remove "${name}" from your daily list? Past history for it stays in History.`);
+        if(!ok) return;
+        state.exercises = state.exercises.filter(e => e.name !== name);
+        delete state.expandedCards[name];
+        await storageSet("il-exercises", state.exercises);
+        renderGrid();
+      });
+    });
+    document.querySelectorAll('[data-action="save"]').forEach(btn => {
+      btn.addEventListener("click", () => saveRow(btn.dataset.exname, btn.dataset.person));
+    });
+    document.querySelectorAll('[data-action="copy"]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        const exname = btn.dataset.exname, person = btn.dataset.person;
+        const domKey = slug(exname);
+        const s1 = document.getElementById(`s-${domKey}-${person}-1`).value.trim();
+        if(s1 === "") return;
+        [2,3,4].forEach(n => {
+          document.getElementById(`s-${domKey}-${person}-${n}`).value = s1;
+        });
+      });
+    });
+  }
+
+  async function saveRow(exname, person){
+    const domKey = slug(exname);
+    const ex = state.exercises.find(e => e.name === exname);
+    if(!ex) return;
+
+    const sets = [1,2,3,4].map(n => {
+      const el = document.getElementById(`s-${domKey}-${person}-${n}`);
+      const raw = el.value.trim();
+      if(raw === "") return null;
+      const num = Number(raw);
+      return isNaN(num) ? null : num;
+    }).filter(v => v !== null);   // explicit null check so a real 0 is always kept
+
+    const flash = document.getElementById(`flash-${domKey}-${person}`);
+
+    if(sets.length === 0){
+      flash.textContent = "Enter at least Set 1";
+      flash.style.color = "var(--warn)";
+      flash.classList.add("show");
+      setTimeout(() => flash.classList.remove("show"), 1800);
+      return;
+    }
+
+    if(!state.sessions[state.date]) state.sessions[state.date] = {};
+    if(!state.sessions[state.date][exname]) state.sessions[state.date][exname] = {};
+    state.sessions[state.date][exname][person] = sets;
+
+    await storageSet("il-sessions", state.sessions);
+
+    flash.textContent = "Saved ✓";
+    flash.style.color = "var(--good)";
+    flash.classList.add("show");
+    setTimeout(() => flash.classList.remove("show"), 1600);
+
+    renderGrid();
+    renderHistory();
+  }
+
+  function renderHistory(){
+    const holder = document.getElementById("hist-content");
+    const dates = sortedDates().slice().reverse();
+    if(dates.length === 0){
+      holder.innerHTML = `<p class="empty">No sessions logged yet.</p>`;
+      return;
+    }
+    holder.innerHTML = dates.map(d => {
+      const day = state.sessions[d];
+      const rows = Object.keys(day).map(exName => {
+        const tVal = day[exName].Tyler;
+        const bVal = day[exName].Beth;
+        const tCell = tVal
+          ? `${tVal.join("/")} lb<button class="mini-del" data-action="delete-entry" data-date="${d}" data-exname="${escapeHtml(exName)}" data-person="Tyler" title="Delete this entry">×</button>`
+          : "—";
+        const bCell = bVal
+          ? `${bVal.join("/")} lb<button class="mini-del" data-action="delete-entry" data-date="${d}" data-exname="${escapeHtml(exName)}" data-person="Beth" title="Delete this entry">×</button>`
+          : "—";
+        return `<tr>
+          <td class="ex">${escapeHtml(exName)}</td>
+          <td class="tag t">${tCell}</td>
+          <td class="tag b">${bCell}</td>
+        </tr>`;
+      }).join("");
+      return `<div class="hist-day">
+        <div class="hist-day-head">
+          <span class="hist-day-date">${fmtDate(d)}</span>
+          <button class="del-btn" data-action="delete-date" data-date="${d}">Delete day</button>
+        </div>
+        <table>
+          <thead><tr><th>Exercise</th><th>Tyler</th><th>Beth</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join("");
+
+    document.querySelectorAll('[data-action="delete-date"]').forEach(btn => {
+      btn.addEventListener("click", () => deleteDate(btn.dataset.date));
+    });
+    document.querySelectorAll('[data-action="delete-entry"]').forEach(btn => {
+      btn.addEventListener("click", () => deleteEntry(btn.dataset.date, btn.dataset.exname, btn.dataset.person));
+    });
+  }
+
+  async function deleteDate(date){
+    const ok = confirm("Delete the entire " + fmtDate(date) + " session? This can't be undone.");
+    if(!ok) return;
+    delete state.sessions[date];
+    await storageSet("il-sessions", state.sessions);
+    renderHistory();
+    renderGrid();
+  }
+
+  async function deleteEntry(date, exname, person){
+    if(!state.sessions[date] || !state.sessions[date][exname]) return;
+    delete state.sessions[date][exname][person];
+    if(Object.keys(state.sessions[date][exname]).length === 0){
+      delete state.sessions[date][exname];
+    }
+    if(Object.keys(state.sessions[date]).length === 0){
+      delete state.sessions[date];
+    }
+    await storageSet("il-sessions", state.sessions);
+    renderHistory();
+    renderGrid();
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  // ---- header controls ----
+  document.getElementById("date-input").addEventListener("change", (e) => {
+    state.date = e.target.value || todayStr();
+    render();
+  });
+
+  document.getElementById("hist-toggle").addEventListener("click", () => {
+    state.historyOpen = !state.historyOpen;
+    document.getElementById("hist-panel").style.display = state.historyOpen ? "block" : "none";
+    document.getElementById("hist-toggle").textContent = state.historyOpen ? "Hide History" : "History";
+  });
+
+  document.getElementById("add-today-btn").addEventListener("click", () => {
+    state.date = todayStr();
+    document.getElementById("date-input").value = state.date;
+    state.exercises.forEach(ex => { state.expandedCards[ex.name] = true; });
+    renderGrid();
+    document.getElementById("grid").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  document.getElementById("expand-all-btn").addEventListener("click", () => {
+    state.exercises.forEach(ex => { state.expandedCards[ex.name] = true; });
+    renderGrid();
+  });
+
+  document.getElementById("collapse-all-btn").addEventListener("click", () => {
+    state.expandedCards = {};
+    renderGrid();
+  });
+
+  // ---- add exercise ----
+  document.getElementById("add-toggle").addEventListener("click", () => {
+    state.addOpen = !state.addOpen;
+    const holder = document.getElementById("add-form-holder");
+    if(!state.addOpen){ holder.innerHTML = ""; return; }
+    holder.innerHTML = `<div class="card add-form" style="margin-top:10px;">
+      <input type="text" id="new-ex-name" placeholder="Exercise name (e.g. Lat Raise)">
+      <input type="text" id="new-ex-equip" placeholder="Equipment (optional)">
+      <div class="btnrow">
+        <button class="copy-btn" id="new-ex-cancel">Cancel</button>
+        <button class="save-btn" style="--pcolor:var(--warn)" id="new-ex-save">Add exercise</button>
+      </div>
+    </div>`;
+    document.getElementById("new-ex-cancel").addEventListener("click", () => {
+      state.addOpen = false;
+      holder.innerHTML = "";
+    });
+    document.getElementById("new-ex-save").addEventListener("click", async () => {
+      const name = document.getElementById("new-ex-name").value.trim();
+      const equip = document.getElementById("new-ex-equip").value.trim();
+      if(!name) return;
+      state.exercises.push({name, equipment: equip});
+      await storageSet("il-exercises", state.exercises);
+      state.addOpen = false;
+      holder.innerHTML = "";
+      renderGrid();
+    });
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
