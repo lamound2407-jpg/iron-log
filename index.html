@@ -42,9 +42,13 @@
   }
   .wrap{max-width:720px;margin:0 auto;padding:20px 16px 80px;}
 
-  /* ---------- Header ---------- */
   header{padding:6px 2px 20px;border-bottom:1px dashed var(--iron-dim);margin-bottom:20px;}
+  .eyebrow-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
   .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--iron);margin:0 0 4px;}
+  .sync-status{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;margin:0 0 4px;}
+  .sync-status.ok{color:var(--good);}
+  .sync-status.off{color:var(--warn);}
+  .sync-status.pending{color:var(--iron);}
   h1{
     font-family:var(--font-display);
     font-weight:700;
@@ -84,7 +88,6 @@
   }
   .collapse-btn:hover{border-color:var(--iron);color:var(--chalk);}
 
-  /* ---------- Exercise cards ---------- */
   .grid{display:flex;flex-direction:column;gap:14px;}
   .card{
     background:var(--card);
@@ -92,6 +95,7 @@
     border-radius:var(--radius);
     padding:16px 16px 14px;
   }
+  .card-archived{opacity:.88;border-style:dashed;}
   .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
   .card-toggle{
     display:flex;align-items:flex-start;gap:10px;background:none;border:none;color:var(--chalk);
@@ -102,7 +106,7 @@
   .card-toggle-text{display:flex;flex-direction:column;min-width:0;}
   .ex-name{font-family:var(--font-display);font-size:19px;font-weight:600;letter-spacing:.02em;color:var(--chalk);margin:0;}
   .ex-equip{font-size:12px;color:var(--iron);margin:2px 0 0;}
-  .card-top-right{display:flex;align-items:flex-start;gap:8px;flex-shrink:0;}
+  .card-top-right{display:flex;align-items:flex-start;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
   .plates{display:flex;gap:8px;flex-shrink:0;}
   .plate{
     width:52px;height:52px;border-radius:50%;
@@ -114,11 +118,11 @@
   .plate .n{font-family:var(--font-mono);font-weight:600;font-size:13px;color:var(--chalk);line-height:1;}
   .plate .u{font-family:var(--font-mono);font-size:8px;color:var(--chalk-dim);letter-spacing:.05em;}
   .plate .trend{position:absolute;top:-6px;right:-6px;font-size:11px;background:var(--ink);border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border:1px solid var(--card-edge);}
-  .ex-del{
-    background:none;border:1px solid var(--card-edge);color:var(--iron);font-size:15px;line-height:1;
+  .ex-icon-btn{
+    background:none;border:1px solid var(--card-edge);color:var(--iron);font-size:13px;line-height:1;
     width:26px;height:26px;border-radius:50%;cursor:pointer;flex-shrink:0;
   }
-  .ex-del:hover{border-color:var(--warn);color:var(--warn);}
+  .ex-icon-btn:hover{border-color:var(--chalk);color:var(--chalk);}
 
   .card-body{margin-top:14px;display:flex;flex-direction:column;gap:14px;}
   .person-block{border-left:4px solid var(--pcolor);padding-left:12px;}
@@ -126,13 +130,21 @@
   .pb-head .who{font-weight:600;color:var(--pcolor);font-family:var(--font-body);font-size:14px;}
   .pb-head .last{font-family:var(--font-mono);font-size:11.5px;color:var(--chalk-dim);}
   .sets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
-  .set-field label{display:block;font-family:var(--font-mono);font-size:10px;color:var(--iron);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
-  .set-field input{
+  .cardio-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+  .sets-reps{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px;}
+  .set-field label, .set-field-pair label{display:block;font-family:var(--font-mono);font-size:10px;color:var(--iron);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+  .set-field input, .cardio-fields input{
     width:100%;background:var(--ink);border:1px solid var(--card-edge);color:var(--chalk);
     font-family:var(--font-mono);font-size:15px;padding:8px 6px;border-radius:8px;text-align:center;
   }
-  .set-field input::placeholder{color:var(--iron-dim);}
-  .set-field input:focus{border-color:var(--pcolor);}
+  .set-field input::placeholder, .cardio-fields input::placeholder, .pair-inputs input::placeholder{color:var(--iron-dim);}
+  .set-field input:focus, .cardio-fields input:focus, .pair-inputs input:focus{border-color:var(--pcolor);}
+  .pair-inputs{display:flex;align-items:center;gap:4px;}
+  .pair-inputs input{
+    width:100%;background:var(--ink);border:1px solid var(--card-edge);color:var(--chalk);
+    font-family:var(--font-mono);font-size:14px;padding:8px 4px;border-radius:8px;text-align:center;min-width:0;
+  }
+  .pair-inputs .x{color:var(--iron);font-size:12px;flex-shrink:0;}
   .row-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .save-btn{
     background:var(--pcolor);color:var(--ink);border:none;font-family:var(--font-body);font-weight:600;
@@ -146,8 +158,31 @@
   .copy-btn:hover{border-color:var(--iron);color:var(--chalk);}
   .flash{font-size:12px;color:var(--good);font-family:var(--font-mono);opacity:0;transition:opacity .2s;}
   .flash.show{opacity:1;}
+  .hint{font-size:11px;color:var(--iron);margin-top:6px;}
 
-  /* ---------- Add exercise ---------- */
+  .rename-form{display:flex;flex-direction:column;gap:8px;flex:1;}
+  .rename-form input{
+    background:var(--ink-2);border:1px solid var(--card-edge);color:var(--chalk);
+    font-family:var(--font-body);font-size:14px;padding:8px 10px;border-radius:8px;
+  }
+  .rename-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+  .forever-row{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .forever-link{background:none;border:none;color:var(--iron);font-family:var(--font-mono);font-size:10.5px;
+    text-decoration:underline;cursor:pointer;padding:0;text-transform:uppercase;letter-spacing:.05em;}
+  .forever-link:hover{color:var(--warn);}
+  .forever-confirm{margin-top:10px;background:rgba(224,182,79,0.07);border:1px solid var(--warn);border-radius:8px;padding:10px;}
+  .forever-warning{font-size:12px;color:var(--chalk-dim);margin:0 0 8px;}
+  .forever-input{
+    background:var(--ink);border:1px solid var(--card-edge);color:var(--chalk);font-family:var(--font-mono);
+    font-size:13px;padding:7px 9px;border-radius:6px;width:120px;
+  }
+  .forever-btn{
+    background:var(--warn);color:var(--ink);border:none;font-family:var(--font-body);font-weight:600;
+    font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;
+  }
+  .forever-btn:disabled{opacity:.35;cursor:not-allowed;}
+
   .add-card{
     border:1px dashed var(--card-edge);border-radius:var(--radius);padding:14px 16px;
     color:var(--iron);cursor:pointer;text-align:center;font-family:var(--font-mono);font-size:12px;
@@ -155,15 +190,22 @@
   }
   .add-card:hover{border-color:var(--iron);color:var(--chalk);}
   .add-form{display:flex;flex-direction:column;gap:8px;}
-  .add-form input{
+  .add-form input[type="text"]{
     background:var(--ink-2);border:1px solid var(--card-edge);color:var(--chalk);
     font-family:var(--font-body);font-size:14px;padding:9px 10px;border-radius:8px;
   }
   .add-form .btnrow{display:flex;gap:8px;justify-content:flex-end;}
+  .type-choice{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--chalk-dim);margin:2px 0;}
+  .type-choice label{display:flex;align-items:center;gap:8px;cursor:pointer;}
 
-  /* ---------- History ---------- */
-  .hist-panel{margin-top:22px;border-top:1px dashed var(--iron-dim);padding-top:16px;}
-  .hist-panel h2{font-family:var(--font-display);font-size:18px;letter-spacing:.03em;text-transform:uppercase;margin:0 0 10px;}
+  .manage-panel{margin-top:22px;border-top:1px dashed var(--iron-dim);padding-top:16px;}
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab-btn{
+    background:none;border:1px solid var(--card-edge);color:var(--chalk-dim);font-family:var(--font-mono);
+    font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:8px 12px;border-radius:8px;cursor:pointer;
+  }
+  .tab-btn.active{border-color:var(--chalk-dim);color:var(--chalk);background:var(--ink-2);}
+
   table{width:100%;border-collapse:collapse;font-size:12.5px;}
   th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--card-edge);}
   th{font-family:var(--font-mono);color:var(--iron);text-transform:uppercase;font-size:10.5px;letter-spacing:.06em;}
@@ -182,9 +224,17 @@
   .mini-del{background:none;border:none;color:var(--iron);cursor:pointer;font-size:12px;margin-left:6px;padding:0 2px;}
   .mini-del:hover{color:var(--warn);}
 
+  .trash-item{background:var(--card);border:1px solid var(--card-edge);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .trash-item-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .trash-label{font-family:var(--font-mono);font-size:12.5px;color:var(--chalk);}
+  .restore-btn{color:var(--good);}
+  .restore-btn:hover{border-color:var(--good);color:var(--good);}
+
   @media (max-width:420px){
     h1{font-size:28px;}
     .sets{grid-template-columns:repeat(2,1fr);}
+    .cardio-fields{grid-template-columns:repeat(1,1fr);}
+    .sets-reps{grid-template-columns:repeat(1,1fr);}
     .plate{width:46px;height:46px;}
   }
   @media (prefers-reduced-motion:reduce){
@@ -195,13 +245,16 @@
 <body>
 <div class="wrap">
   <header>
-    <p class="eyebrow">Tyler &amp; Beth</p>
+    <div class="eyebrow-row">
+      <p class="eyebrow">Tyler &amp; Beth</p>
+      <p class="sync-status pending" id="sync-status">○ connecting…</p>
+    </div>
     <h1>Iron Log</h1>
-    <p class="sub">Quick set tracking. Log after each machine, no scrolling back through old notes.</p>
+    <p class="sub">Quick set tracking, synced between both your phones and laptops.</p>
     <div class="date-row">
       <label for="date-input">Session date</label>
       <input type="date" id="date-input">
-      <button class="hist-btn" id="hist-toggle">History</button>
+      <button class="hist-btn" id="manage-toggle">Manage</button>
     </div>
   </header>
 
@@ -216,21 +269,43 @@
   <button class="add-card" id="add-toggle">+ Add an exercise</button>
   <div id="add-form-holder"></div>
 
-  <div class="hist-panel" id="hist-panel" style="display:none;">
-    <h2>Past sessions</h2>
-    <div id="hist-content"></div>
+  <div class="manage-panel" id="manage-panel" style="display:none;">
+    <div id="manage-content"></div>
   </div>
 </div>
 
-<script>
-(function(){
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import { getDatabase, ref, set as fbSet, get as fbGet, onValue } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBblSJo1Soz-UcuhZIE_Qr6WMcNYYlon1w",
+    authDomain: "iron-log-41f09.firebaseapp.com",
+    databaseURL: "https://iron-log-41f09-default-rtdb.firebaseio.com",
+    projectId: "iron-log-41f09",
+    storageBucket: "iron-log-41f09.firebasestorage.app",
+    messagingSenderId: "321265603722",
+    appId: "1:321265603722:web:3de9892856895b40078973",
+    measurementId: "G-JHYFY148VG"
+  };
+
+  let db = null;
+  let firebaseReady = false;
+  try{
+    const app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+    firebaseReady = true;
+  }catch(e){
+    console.error("Firebase init failed, running local-only:", e);
+  }
+
   const DEFAULT_EXERCISES = [
-    {name:"Leg Press", equipment:"Leg press machine"},
-    {name:"Wide Pulldowns", equipment:"Cable / pulldown machine"},
-    {name:"Chest Press", equipment:"Chest press machine"},
-    {name:"Shoulder Press", equipment:"Shoulder press machine"},
-    {name:"Triceps Extensions", equipment:"Cable / machine"},
-    {name:"Abdominal Crunch", equipment:"Ab crunch machine"}
+    {name:"Leg Press", equipment:"Leg press machine", type:"strength", status:"active"},
+    {name:"Wide Pulldowns", equipment:"Cable / pulldown machine", type:"strength", status:"active"},
+    {name:"Chest Press", equipment:"Chest press machine", type:"strength", status:"active"},
+    {name:"Shoulder Press", equipment:"Shoulder press machine", type:"strength", status:"active"},
+    {name:"Triceps Extensions", equipment:"Cable / machine", type:"strength", status:"active"},
+    {name:"Abdominal Crunch", equipment:"Ab crunch machine", type:"strength", status:"active"}
   ];
 
   const SEED_SESSIONS = {
@@ -257,16 +332,24 @@
     {key:"Beth", color:"var(--beth)"}
   ];
 
-  // Works both as a Claude.ai artifact (window.storage) and as a plain hosted
-  // page (falls back to the browser's own localStorage).
   const hasArtifactStorage = (typeof window !== "undefined") && window.storage && typeof window.storage.get === "function";
+  const _bound = new WeakSet();
+  function bindOnce(el, type, handler){
+    if(!el || _bound.has(el)) return;
+    el.addEventListener(type, handler);
+    _bound.add(el);
+  }
 
   const state = {
     exercises: [],
     sessions: {},
-    expandedCards: {},   // exercise name -> bool
+    trash: [],
+    expandedCards: {},
+    renaming: null,
+    confirmForever: {},
     date: todayStr(),
-    historyOpen: false,
+    manageOpen: false,
+    manageTab: "history",
     addOpen: false
   };
 
@@ -276,12 +359,33 @@
     const day = String(d.getDate()).padStart(2,'0');
     return d.getFullYear()+"-"+m+"-"+day;
   }
-
   function slug(s){
     return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
   }
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+  function fmtDate(iso){
+    if(!iso) return "";
+    const [y,m,d] = iso.split("-");
+    return m+"/"+d;
+  }
+  function setSyncStatus(kind, text){
+    const el = document.getElementById("sync-status");
+    if(!el) return;
+    el.className = "sync-status " + kind;
+    el.textContent = text;
+  }
 
-  async function storageGet(key, fallback){
+  // Local-only read, bypassing Firebase entirely. Used at first-run migration
+  // time to check "does THIS device already have real history from before
+  // sync existed?" and for the fallback path if Firebase is unreachable.
+  async function localOnlyGet(key, fallback){
     try{
       if(hasArtifactStorage){
         const res = await window.storage.get(key);
@@ -293,7 +397,7 @@
       return fallback;
     }
   }
-  async function storageSet(key, value){
+  async function localOnlySet(key, value){
     try{
       if(hasArtifactStorage){
         await window.storage.set(key, JSON.stringify(value));
@@ -301,326 +405,807 @@
         localStorage.setItem(key, JSON.stringify(value));
       }
     }catch(e){
-      console.error("Storage save failed:", e);
+      console.error("Local storage save failed:", e);
     }
   }
 
-  function fmtDate(iso){
-    if(!iso) return "";
-    const [y,m,d] = iso.split("-");
-    return m+"/"+d;
+  // Primary storage: Firebase when reachable, local storage as a fallback
+  // if a write/read fails (offline, blocked script, misconfigured rules).
+  async function storageGet(key, fallback){
+    if(firebaseReady){
+      try{
+        const snap = await fbGet(ref(db, "iron-log/" + key));
+        return snap.exists() ? snap.val() : fallback;
+      }catch(e){
+        console.error("Firebase read failed, falling back to local:", e);
+      }
+    }
+    return localOnlyGet(key, fallback);
+  }
+  async function storageSet(key, value){
+    if(firebaseReady){
+      try{
+        await fbSet(ref(db, "iron-log/" + key), value);
+        return;
+      }catch(e){
+        console.error("Firebase write failed, falling back to local:", e);
+      }
+    }
+    await localOnlySet(key, value);
   }
 
-  function sortedDates(){
-    return Object.keys(state.sessions).sort();
+  function sortedDates(){ return Object.keys(state.sessions).sort(); }
+
+  function hasData(ex, data){
+    if(!data) return false;
+    if(ex.type === "cardio") return data.incline != null || data.speed != null || data.duration != null;
+    if(Array.isArray(data)) return data.length > 0;
+    return false;
   }
 
-  function findLatest(exName, person, beforeOrOn){
+  function headline(ex, data){
+    if(!hasData(ex, data)) return null;
+    if(ex.type === "cardio"){
+      if(data.speed != null) return {value:data.speed, unit:"mph"};
+      if(data.incline != null) return {value:data.incline, unit:"% incl"};
+      return {value:data.duration, unit:"min"};
+    }
+    if(ex.type === "reps") return {value: Math.max.apply(null, data.map(s=>s.w)), unit:"lb"};
+    return {value: Math.max.apply(null, data), unit:"lb"};
+  }
+
+  function formatEntry(ex, data){
+    if(!hasData(ex, data)) return null;
+    if(ex.type === "cardio"){
+      const parts = [];
+      if(data.speed != null) parts.push(data.speed + " mph");
+      if(data.incline != null) parts.push(data.incline + "% incline");
+      if(data.duration != null) parts.push(data.duration + " min");
+      return parts.join(" · ");
+    }
+    if(ex.type === "reps") return data.map(s => s.w + "×" + s.r).join(", ") + " lb×reps";
+    return data.join("/") + " lb";
+  }
+
+  function getExOrFallback(name){
+    return state.exercises.find(e => e.name === name) || {name, type:"strength", status:"active"};
+  }
+
+  function findLatest(ex, person, beforeOrOn){
     const dates = sortedDates().filter(d => !beforeOrOn || d <= beforeOrOn);
     for(let i=dates.length-1;i>=0;i--){
       const d = dates[i];
-      const sets = state.sessions[d] && state.sessions[d][exName] && state.sessions[d][exName][person];
-      if(sets && sets.length) return {date:d, sets:sets};
+      const data = state.sessions[d] && state.sessions[d][ex.name] && state.sessions[d][ex.name][person];
+      if(hasData(ex, data)) return {date:d, data};
     }
     return null;
   }
-
-  function findPrevious(exName, person, latestDate){
+  function findPrevious(ex, person, latestDate){
     const dates = sortedDates().filter(d => d < latestDate);
     for(let i=dates.length-1;i>=0;i--){
       const d = dates[i];
-      const sets = state.sessions[d] && state.sessions[d][exName] && state.sessions[d][exName][person];
-      if(sets && sets.length) return {date:d, sets:sets};
+      const data = state.sessions[d] && state.sessions[d][ex.name] && state.sessions[d][ex.name][person];
+      if(hasData(ex, data)) return {date:d, data};
     }
     return null;
   }
-
-  function repWeight(sets){
-    return Math.max.apply(null, sets);
-  }
-
-  function trendArrow(exName, person){
-    const latest = findLatest(exName, person, state.date) || findLatest(exName, person, null);
+  function trendArrow(ex, person){
+    const latest = findLatest(ex, person, state.date) || findLatest(ex, person, null);
     if(!latest) return {symbol:"—", color:"var(--iron)"};
-    const prev = findPrevious(exName, person, latest.date);
+    const prev = findPrevious(ex, person, latest.date);
     if(!prev) return {symbol:"—", color:"var(--iron)"};
-    const a = repWeight(latest.sets), b = repWeight(prev.sets);
-    if(a > b) return {symbol:"▲", color:"var(--good)"};
-    if(a < b) return {symbol:"▼", color:"var(--warn)"};
+    const a = headline(ex, latest.data), b = headline(ex, prev.data);
+    if(!a || !b) return {symbol:"—", color:"var(--iron)"};
+    if(a.value > b.value) return {symbol:"▲", color:"var(--good)"};
+    if(a.value < b.value) return {symbol:"▼", color:"var(--warn)"};
     return {symbol:"●", color:"var(--iron)"};
   }
 
-  async function init(){
-    const seeded = await storageGet("il-seeded", null);
-    if(!seeded){
-      await storageSet("il-exercises", DEFAULT_EXERCISES);
-      await storageSet("il-sessions", SEED_SESSIONS);
-      await storageSet("il-seeded", true);
-    }
-    state.exercises = await storageGet("il-exercises", DEFAULT_EXERCISES);
-    state.sessions = await storageGet("il-sessions", {});
-    document.getElementById("date-input").value = state.date;
-    render();
+  function readNum(id){
+    const el = document.getElementById(id);
+    if(!el) return null;
+    const raw = el.value.trim();
+    if(raw === "") return null;
+    const n = Number(raw);
+    return isNaN(n) ? null : n;
+  }
+  function flashMsg(flashEl, msg, color){
+    if(!flashEl) return;
+    flashEl.textContent = msg;
+    flashEl.style.color = color;
+    flashEl.classList.add("show");
+    setTimeout(() => flashEl.classList.remove("show"), 1800);
+  }
+  function typeLabel(type){
+    if(type === "cardio") return " · cardio";
+    if(type === "reps") return " · weight+reps";
+    return "";
   }
 
-  function render(){
+  async function init(){
+    setSyncStatus("pending", "○ connecting…");
+
+    let cloudExercises = null, cloudSessions = null, cloudTrash = null, cloudSeeded = null;
+    if(firebaseReady){
+      try{
+        const [exSnap, sessSnap, trashSnap, seededSnap] = await Promise.all([
+          fbGet(ref(db, "iron-log/il-exercises")),
+          fbGet(ref(db, "iron-log/il-sessions")),
+          fbGet(ref(db, "iron-log/il-trash")),
+          fbGet(ref(db, "iron-log/il-seeded"))
+        ]);
+        cloudExercises = exSnap.exists() ? exSnap.val() : null;
+        cloudSessions = sessSnap.exists() ? sessSnap.val() : null;
+        cloudTrash = trashSnap.exists() ? trashSnap.val() : null;
+        cloudSeeded = seededSnap.exists() ? seededSnap.val() : null;
+      }catch(e){
+        console.error("Initial Firebase read failed:", e);
+        firebaseReady = false;
+      }
+    }
+
+    if(cloudSeeded){
+      // The cloud already has real synced data from a previous device — use it.
+      state.exercises = cloudExercises || DEFAULT_EXERCISES.slice();
+      state.sessions = cloudSessions || {};
+      state.trash = cloudTrash || [];
+      setSyncStatus("ok", "● synced");
+    } else if(firebaseReady){
+      // Cloud is empty. Check THIS device's own local history (from before
+      // sync existed) and push it up as the seed, rather than overwriting
+      // with the old sample data.
+      const localExercises = await localOnlyGet("il-exercises", null);
+      const localSessions = await localOnlyGet("il-sessions", null);
+      const localTrash = await localOnlyGet("il-trash", null);
+
+      if(localExercises || localSessions){
+        state.exercises = localExercises || DEFAULT_EXERCISES.slice();
+        state.sessions = localSessions || {};
+        state.trash = localTrash || [];
+      } else {
+        state.exercises = DEFAULT_EXERCISES.slice();
+        state.sessions = JSON.parse(JSON.stringify(SEED_SESSIONS));
+        state.trash = [];
+      }
+      try{
+        await fbSet(ref(db, "iron-log/il-exercises"), state.exercises);
+        await fbSet(ref(db, "iron-log/il-sessions"), state.sessions);
+        await fbSet(ref(db, "iron-log/il-trash"), state.trash);
+        await fbSet(ref(db, "iron-log/il-seeded"), true);
+        setSyncStatus("ok", "● synced");
+      }catch(e){
+        console.error("Could not seed cloud:", e);
+        setSyncStatus("off", "○ local only");
+      }
+    } else {
+      // No Firebase connection at all — fall back to whatever is local.
+      state.exercises = await localOnlyGet("il-exercises", DEFAULT_EXERCISES.slice());
+      state.sessions = await localOnlyGet("il-sessions", {});
+      state.trash = await localOnlyGet("il-trash", []);
+      setSyncStatus("off", "○ local only");
+    }
+
+    let migrated = false;
+    state.exercises = state.exercises.map(e => {
+      if(e.type === undefined || e.status === undefined){
+        migrated = true;
+        return {name:e.name, equipment:e.equipment, type:e.type || "strength", status:e.status || "active"};
+      }
+      return e;
+    });
+
+    const migratedV2 = await storageGet("il-migrated-v2", null);
+    if(!migratedV2){
+      if(!state.exercises.some(e => e.name === "Walk")){
+        state.exercises.push({name:"Walk", equipment:"Treadmill", type:"cardio", status:"active"});
+        migrated = true;
+      }
+      if(!state.exercises.some(e => e.name === "Dumbbell Exercise")){
+        state.exercises.push({name:"Dumbbell Exercise", equipment:"Dumbbells", type:"reps", status:"active"});
+        migrated = true;
+      }
+      await storageSet("il-migrated-v2", true);
+    }
+    if(migrated) await storageSet("il-exercises", state.exercises);
+
+    document.getElementById("date-input").value = state.date;
+    renderApp();
+    setupRealtimeSync();
+  }
+
+  // Live cross-device sync. Firebase fires onValue immediately with the
+  // current value, then again on every future change from ANY device.
+  // Session/trash updates are applied to state + surgically refresh plates
+  // and captions only — input fields are never touched, so a remote save
+  // from the other person never wipes what you're mid-typing here.
+  function setupRealtimeSync(){
+    if(!firebaseReady) return;
+
+    onValue(ref(db, "iron-log/il-exercises"), (snap) => {
+      const val = snap.val();
+      if(!val) return;
+      state.exercises = val;
+      renderGrid();
+      if(state.manageOpen) renderManage();
+      bindAll();
+    });
+
+    onValue(ref(db, "iron-log/il-sessions"), (snap) => {
+      state.sessions = snap.val() || {};
+      state.exercises.filter(ex => ex.status === "active").forEach(ex => {
+        PEOPLE.forEach(p => updatePlateAndCaption(ex, slug(ex.name), p.key));
+      });
+      if(state.manageOpen){ renderManage(); bindAll(); }
+    });
+
+    onValue(ref(db, "iron-log/il-trash"), (snap) => {
+      state.trash = snap.val() || [];
+      if(state.manageOpen){ renderManage(); bindAll(); }
+    });
+  }
+
+  function renderApp(){
     renderGrid();
-    renderHistory();
+    renderManage();
+    bindAll();
   }
 
   function renderGrid(){
     const grid = document.getElementById("grid");
-    grid.innerHTML = state.exercises.map(ex => cardHTML(ex)).join("");
-    attachCardHandlers();
+    grid.innerHTML = state.exercises.filter(e => e.status === "active").map(ex => cardHTML(ex)).join("");
   }
 
   function plateHTML(ex, p){
-    const latest = findLatest(ex.name, p.key, state.date) || findLatest(ex.name, p.key, null);
-    const weight = latest ? repWeight(latest.sets) : null;
-    const t = trendArrow(ex.name, p.key);
-    return `<div class="plate" style="--pcolor:${p.color}">
+    const domKey = slug(ex.name);
+    const latest = findLatest(ex, p.key, state.date) || findLatest(ex, p.key, null);
+    const h = latest ? headline(ex, latest.data) : null;
+    const t = trendArrow(ex, p.key);
+    return `<div class="plate" id="plate-${domKey}-${p.key}" style="--pcolor:${p.color}">
               <span class="trend" style="color:${t.color}">${t.symbol}</span>
-              <span class="n">${weight !== null ? weight : "–"}</span>
-              <span class="u">${weight !== null ? "lb" : p.key.slice(0,2).toUpperCase()}</span>
+              <span class="n">${h ? h.value : "–"}</span>
+              <span class="u">${h ? h.unit : p.key.slice(0,2).toUpperCase()}</span>
             </div>`;
+  }
+
+  function deleteForeverHTML(kind, id, displayName){
+    const key = kind + ":" + id;
+    const shown = !!state.confirmForever[key];
+    if(!shown){
+      return `<div class="forever-row">
+        <button class="forever-link" data-action="show-forever" data-key="${escapeHtml(key)}">Delete forever</button>
+      </div>`;
+    }
+    return `<div class="forever-confirm">
+      <p class="forever-warning">This permanently deletes "${escapeHtml(displayName)}" — can't be undone. Type DELETE to confirm.</p>
+      <div class="forever-row">
+        <input type="text" class="forever-input" data-forever-key="${escapeHtml(key)}" placeholder="DELETE">
+        <button class="forever-btn" data-action="confirm-forever" data-key="${escapeHtml(key)}" data-kind="${kind}" data-id="${escapeHtml(id)}" disabled>Delete forever</button>
+        <button class="copy-btn" data-action="hide-forever" data-key="${escapeHtml(key)}">Cancel</button>
+      </div>
+    </div>`;
   }
 
   function cardHTML(ex){
     const expanded = !!state.expandedCards[ex.name];
     const domKey = slug(ex.name);
+    const isRenaming = state.renaming === ex.name;
     const plates = PEOPLE.map(p => plateHTML(ex, p)).join("");
-    const body = expanded
-      ? `<div class="card-body">${PEOPLE.map(p => personBlockHTML(ex, domKey, p)).join("")}</div>`
-      : "";
 
-    return `<div class="card">
-      <div class="card-top">
-        <button class="card-toggle" data-action="toggle-card" data-exname="${escapeHtml(ex.name)}" aria-expanded="${expanded}">
+    const nameBlock = isRenaming
+      ? `<div class="rename-form">
+          <input type="text" id="rn-name-${domKey}" value="${escapeHtml(ex.name)}" placeholder="Exercise name">
+          <input type="text" id="rn-equip-${domKey}" value="${escapeHtml(ex.equipment||'')}" placeholder="Equipment (optional)">
+          <div class="rename-actions">
+            <button class="copy-btn" data-action="cancel-rename" data-exname="${escapeHtml(ex.name)}">Cancel</button>
+            <button class="save-btn" style="--pcolor:var(--warn)" data-action="save-rename" data-exname="${escapeHtml(ex.name)}">Save name</button>
+          </div>
+        </div>`
+      : `<button class="card-toggle" data-action="toggle-card" data-exname="${escapeHtml(ex.name)}" aria-expanded="${expanded}">
           <span class="car">▸</span>
           <span class="card-toggle-text">
             <span class="ex-name">${escapeHtml(ex.name)}</span>
-            <span class="ex-equip">${escapeHtml(ex.equipment || "")}</span>
+            <span class="ex-equip">${escapeHtml(ex.equipment || "")}${typeLabel(ex.type)}</span>
           </span>
-        </button>
+        </button>`;
+
+    const actionBtns = isRenaming ? "" : (
+      ex.status === "archived"
+        ? `<button class="ex-icon-btn" data-action="restore-exercise" data-exname="${escapeHtml(ex.name)}" title="Restore to daily list">↩</button>
+           <button class="ex-icon-btn" data-action="edit-exercise" data-exname="${escapeHtml(ex.name)}" title="Edit name">✎</button>`
+        : `<button class="ex-icon-btn" data-action="edit-exercise" data-exname="${escapeHtml(ex.name)}" title="Edit name">✎</button>
+           <button class="ex-icon-btn" data-action="archive-exercise" data-exname="${escapeHtml(ex.name)}" title="Move to archive">⤓</button>`
+    );
+
+    const body = (expanded && !isRenaming)
+      ? `<div class="card-body">${PEOPLE.map(p => personBlockHTML(ex, domKey, p)).join("")}</div>`
+      : "";
+
+    const foreverBlock = (ex.status === "archived" && !isRenaming) ? deleteForeverHTML("ex", ex.name, ex.name) : "";
+
+    return `<div class="card ${ex.status==='archived' ? 'card-archived' : ''}" id="card-${domKey}">
+      <div class="card-top">
+        ${nameBlock}
         <div class="card-top-right">
-          <div class="plates">${plates}</div>
-          <button class="ex-del" data-action="delete-exercise" data-exname="${escapeHtml(ex.name)}" title="Remove this exercise" aria-label="Remove ${escapeHtml(ex.name)}">×</button>
+          ${!isRenaming ? `<div class="plates">${plates}</div>` : ""}
+          ${actionBtns}
         </div>
       </div>
       ${body}
+      ${foreverBlock}
     </div>`;
   }
 
   function personBlockHTML(ex, domKey, p){
-    const latest = findLatest(ex.name, p.key, null);
-    const lastStr = latest ? (fmtDate(latest.date) + " · " + latest.sets.join("/") + " lb") : "no sets logged yet";
-    const prefillSet1 = latest ? latest.sets[latest.sets.length-1] : "";
+    const latest = findLatest(ex, p.key, null);
+    const lastStr = latest ? (fmtDate(latest.date) + " · " + formatEntry(ex, latest.data)) : "no data logged yet";
 
-    const setFields = [1,2,3,4].map(n => `
-      <div class="set-field">
-        <label for="s-${domKey}-${p.key}-${n}">Set ${n}</label>
-        <input type="number" step="2.5" inputmode="decimal" id="s-${domKey}-${p.key}-${n}"
-               value="${n===1 && prefillSet1 !== "" ? prefillSet1 : ""}" placeholder="–">
-      </div>`).join("");
+    let fieldsHtml, hint, copyBtn;
+
+    if(ex.type === "cardio"){
+      const prefIncline = latest && latest.data.incline != null ? latest.data.incline : "";
+      const prefSpeed = latest && latest.data.speed != null ? latest.data.speed : "";
+      fieldsHtml = `<div class="cardio-fields">
+        <div class="set-field"><label for="c-incline-${domKey}-${p.key}">Incline %</label>
+          <input type="number" step="0.5" inputmode="decimal" id="c-incline-${domKey}-${p.key}" value="${prefIncline}" placeholder="–"></div>
+        <div class="set-field"><label for="c-speed-${domKey}-${p.key}">Speed mph</label>
+          <input type="number" step="0.1" inputmode="decimal" id="c-speed-${domKey}-${p.key}" value="${prefSpeed}" placeholder="–"></div>
+        <div class="set-field"><label for="c-duration-${domKey}-${p.key}">Duration min</label>
+          <input type="number" step="1" inputmode="decimal" id="c-duration-${domKey}-${p.key}" placeholder="–"></div>
+      </div>`;
+      hint = `<p class="hint">Speed or incline alone is enough to save — duration is optional.</p>`;
+      copyBtn = "";
+    } else if(ex.type === "reps"){
+      const lastSet = latest ? latest.data[latest.data.length-1] : null;
+      const prefW = lastSet ? lastSet.w : "";
+      const prefR = lastSet ? lastSet.r : "";
+      fieldsHtml = `<div class="sets-reps">` + [1,2,3,4].map(n => `
+        <div class="set-field-pair">
+          <label>Set ${n}</label>
+          <div class="pair-inputs">
+            <input type="number" step="2.5" inputmode="decimal" id="r-w-${domKey}-${p.key}-${n}" value="${n===1 && prefW!=='' ? prefW : ''}" placeholder="lb">
+            <span class="x">×</span>
+            <input type="number" step="1" inputmode="decimal" id="r-r-${domKey}-${p.key}-${n}" value="${n===1 && prefR!=='' ? prefR : ''}" placeholder="reps">
+          </div>
+        </div>`).join("") + `</div>`;
+      hint = `<p class="hint">Only Set 1 is required. Weight and reps both count toward saving that set.</p>`;
+      copyBtn = `<button class="copy-btn" data-action="copy-reps" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Same → all sets</button>`;
+    } else {
+      const prefillSet1 = latest ? latest.data[latest.data.length-1] : "";
+      fieldsHtml = `<div class="sets">` + [1,2,3,4].map(n => `
+        <div class="set-field">
+          <label for="s-${domKey}-${p.key}-${n}">Set ${n}</label>
+          <input type="number" step="2.5" inputmode="decimal" id="s-${domKey}-${p.key}-${n}"
+                 value="${n===1 && prefillSet1 !== "" ? prefillSet1 : ""}" placeholder="–">
+        </div>`).join("") + `</div>`;
+      hint = `<p class="hint">Only Set 1 is required. A real 0 counts — leave blank only to skip a set.</p>`;
+      copyBtn = `<button class="copy-btn" data-action="copy" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Same weight → all sets</button>`;
+    }
 
     return `<div class="person-block" style="--pcolor:${p.color}">
       <div class="pb-head">
         <span class="who">${p.key}</span>
-        <span class="last">${lastStr}</span>
+        <span class="last" id="last-${domKey}-${p.key}">${lastStr}</span>
       </div>
-      <div class="sets">${setFields}</div>
+      ${fieldsHtml}
       <div class="row-actions">
-        <button class="save-btn" style="--pcolor:${p.color}" data-action="save" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Save ${p.key}'s sets</button>
-        <button class="copy-btn" data-action="copy" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Same weight → all sets</button>
+        <button class="save-btn" style="--pcolor:${p.color}" data-action="save" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Save ${p.key}'s ${ex.type==='cardio' ? 'walk' : 'sets'}</button>
+        ${copyBtn}
         <span class="flash" id="flash-${domKey}-${p.key}"></span>
       </div>
+      ${hint}
     </div>`;
   }
 
-  function attachCardHandlers(){
-    document.querySelectorAll('[data-action="toggle-card"]').forEach(btn => {
-      btn.addEventListener("click", () => {
-        const name = btn.dataset.exname;
-        state.expandedCards[name] = !state.expandedCards[name];
-        renderGrid();
-      });
-    });
-    document.querySelectorAll('[data-action="delete-exercise"]').forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const name = btn.dataset.exname;
-        const ok = confirm(`Remove "${name}" from your daily list? Past history for it stays in History.`);
-        if(!ok) return;
-        state.exercises = state.exercises.filter(e => e.name !== name);
-        delete state.expandedCards[name];
-        await storageSet("il-exercises", state.exercises);
-        renderGrid();
-      });
-    });
-    document.querySelectorAll('[data-action="save"]').forEach(btn => {
-      btn.addEventListener("click", () => saveRow(btn.dataset.exname, btn.dataset.person));
-    });
-    document.querySelectorAll('[data-action="copy"]').forEach(btn => {
-      btn.addEventListener("click", () => {
-        const exname = btn.dataset.exname, person = btn.dataset.person;
-        const domKey = slug(exname);
-        const s1 = document.getElementById(`s-${domKey}-${person}-1`).value.trim();
-        if(s1 === "") return;
-        [2,3,4].forEach(n => {
-          document.getElementById(`s-${domKey}-${person}-${n}`).value = s1;
-        });
-      });
-    });
+  function updatePlateAndCaption(ex, domKey, person){
+    const p = PEOPLE.find(pp => pp.key === person);
+    if(!p) return;
+    const plateEl = document.getElementById(`plate-${domKey}-${person}`);
+    if(plateEl) plateEl.outerHTML = plateHTML(ex, p);
+    const lastEl = document.getElementById(`last-${domKey}-${person}`);
+    if(lastEl){
+      const latest = findLatest(ex, person, null);
+      lastEl.textContent = latest ? (fmtDate(latest.date) + " · " + formatEntry(ex, latest.data)) : "no data logged yet";
+    }
+  }
+
+  function rerenderCard(ex){
+    const domKey = slug(ex.name);
+    const el = document.getElementById(`card-${domKey}`);
+    if(el) el.outerHTML = cardHTML(ex);
+    bindAll();
+  }
+  function replaceCardDom(oldName, ex){
+    const oldDomKey = slug(oldName);
+    const el = document.getElementById(`card-${oldDomKey}`);
+    if(el) el.outerHTML = cardHTML(ex);
+    bindAll();
   }
 
   async function saveRow(exname, person){
-    const domKey = slug(exname);
     const ex = state.exercises.find(e => e.name === exname);
     if(!ex) return;
-
-    const sets = [1,2,3,4].map(n => {
-      const el = document.getElementById(`s-${domKey}-${person}-${n}`);
-      const raw = el.value.trim();
-      if(raw === "") return null;
-      const num = Number(raw);
-      return isNaN(num) ? null : num;
-    }).filter(v => v !== null);   // explicit null check so a real 0 is always kept
-
+    const domKey = slug(exname);
     const flash = document.getElementById(`flash-${domKey}-${person}`);
+    let data;
 
-    if(sets.length === 0){
-      flash.textContent = "Enter at least Set 1";
-      flash.style.color = "var(--warn)";
-      flash.classList.add("show");
-      setTimeout(() => flash.classList.remove("show"), 1800);
-      return;
+    if(ex.type === "cardio"){
+      const incline = readNum(`c-incline-${domKey}-${person}`);
+      const speed = readNum(`c-speed-${domKey}-${person}`);
+      const duration = readNum(`c-duration-${domKey}-${person}`);
+      if(incline === null && speed === null && duration === null){
+        flashMsg(flash, "Enter at least speed or incline", "var(--warn)");
+        return;
+      }
+      data = {};
+      if(incline !== null) data.incline = incline;
+      if(speed !== null) data.speed = speed;
+      if(duration !== null) data.duration = duration;
+    } else if(ex.type === "reps"){
+      const sets = [1,2,3,4].map(n => {
+        const w = readNum(`r-w-${domKey}-${person}-${n}`);
+        const r = readNum(`r-r-${domKey}-${person}-${n}`);
+        if(w === null && r === null) return null;
+        return {w: w===null?0:w, r: r===null?0:r};
+      }).filter(v => v !== null);
+      if(sets.length === 0){
+        flashMsg(flash, "Enter at least Set 1", "var(--warn)");
+        return;
+      }
+      data = sets;
+    } else {
+      const sets = [1,2,3,4].map(n => readNum(`s-${domKey}-${person}-${n}`)).filter(v => v !== null);
+      if(sets.length === 0){
+        flashMsg(flash, "Enter at least Set 1", "var(--warn)");
+        return;
+      }
+      data = sets;
     }
 
     if(!state.sessions[state.date]) state.sessions[state.date] = {};
     if(!state.sessions[state.date][exname]) state.sessions[state.date][exname] = {};
-    state.sessions[state.date][exname][person] = sets;
+    state.sessions[state.date][exname][person] = data;
 
     await storageSet("il-sessions", state.sessions);
+    flashMsg(flash, "Saved ✓", "var(--good)");
 
-    flash.textContent = "Saved ✓";
-    flash.style.color = "var(--good)";
-    flash.classList.add("show");
-    setTimeout(() => flash.classList.remove("show"), 1600);
-
-    renderGrid();
-    renderHistory();
+    updatePlateAndCaption(ex, domKey, person);
+    if(state.manageOpen){ renderManage(); bindAll(); }
   }
 
-  function renderHistory(){
-    const holder = document.getElementById("hist-content");
-    const dates = sortedDates().slice().reverse();
-    if(dates.length === 0){
-      holder.innerHTML = `<p class="empty">No sessions logged yet.</p>`;
+  async function archiveExercise(name){
+    const ex = state.exercises.find(e => e.name === name);
+    if(!ex) return;
+    ex.status = "archived";
+    delete state.expandedCards[name];
+    await storageSet("il-exercises", state.exercises);
+    const el = document.getElementById(`card-${slug(name)}`);
+    if(el) el.remove();
+    if(state.manageOpen){ renderManage(); bindAll(); }
+  }
+  async function restoreExercise(name){
+    const ex = state.exercises.find(e => e.name === name);
+    if(!ex) return;
+    ex.status = "active";
+    await storageSet("il-exercises", state.exercises);
+    document.getElementById("grid").insertAdjacentHTML("beforeend", cardHTML(ex));
+    if(state.manageOpen) renderManage();
+    bindAll();
+  }
+
+  async function renameExercise(oldName, newName, newEquip){
+    const ex = state.exercises.find(e => e.name === oldName);
+    if(!ex) return;
+    if(newName !== oldName && state.exercises.some(e => e.name === newName)){
+      alert('You already have an exercise named "' + newName + '". Pick a different name.');
       return;
     }
-    holder.innerHTML = dates.map(d => {
+    ex.name = newName;
+    ex.equipment = newEquip;
+
+    if(newName !== oldName){
+      Object.keys(state.sessions).forEach(date => {
+        if(state.sessions[date][oldName] !== undefined){
+          state.sessions[date][newName] = state.sessions[date][oldName];
+          delete state.sessions[date][oldName];
+        }
+      });
+      state.trash.forEach(rec => { if(rec.exname === oldName) rec.exname = newName; });
+      if(state.expandedCards[oldName] !== undefined){
+        state.expandedCards[newName] = state.expandedCards[oldName];
+        delete state.expandedCards[oldName];
+      }
+    }
+    await storageSet("il-exercises", state.exercises);
+    await storageSet("il-sessions", state.sessions);
+    await storageSet("il-trash", state.trash);
+  }
+
+  async function deleteDate(date){
+    const ok = confirm("Move the entire " + fmtDate(date) + " session to Trash? You can restore it from there.");
+    if(!ok) return;
+    const dayData = state.sessions[date];
+    state.trash.push({id: uid(), kind:"day", date, data: dayData, deletedAt: Date.now()});
+    delete state.sessions[date];
+    await storageSet("il-sessions", state.sessions);
+    await storageSet("il-trash", state.trash);
+    Object.keys(dayData).forEach(exname => {
+      const ex = state.exercises.find(e => e.name === exname);
+      if(ex && ex.status === "active"){
+        PEOPLE.forEach(p => updatePlateAndCaption(ex, slug(exname), p.key));
+      }
+    });
+    renderManage();
+    bindAll();
+  }
+
+  async function deleteEntry(date, exname, person){
+    if(!state.sessions[date] || !state.sessions[date][exname]) return;
+    const data = state.sessions[date][exname][person];
+    state.trash.push({id: uid(), kind:"entry", date, exname, person, data, deletedAt: Date.now()});
+    delete state.sessions[date][exname][person];
+    if(Object.keys(state.sessions[date][exname]).length === 0) delete state.sessions[date][exname];
+    if(Object.keys(state.sessions[date]).length === 0) delete state.sessions[date];
+    await storageSet("il-sessions", state.sessions);
+    await storageSet("il-trash", state.trash);
+    const ex = state.exercises.find(e => e.name === exname);
+    if(ex && ex.status === "active") updatePlateAndCaption(ex, slug(exname), person);
+    renderManage();
+    bindAll();
+  }
+
+  async function restoreTrash(id){
+    const idx = state.trash.findIndex(r => String(r.id) === String(id));
+    if(idx === -1) return;
+    const rec = state.trash[idx];
+    if(rec.kind === "day"){
+      state.sessions[rec.date] = rec.data;
+    } else {
+      if(!state.sessions[rec.date]) state.sessions[rec.date] = {};
+      if(!state.sessions[rec.date][rec.exname]) state.sessions[rec.date][rec.exname] = {};
+      state.sessions[rec.date][rec.exname][rec.person] = rec.data;
+    }
+    state.trash.splice(idx,1);
+    await storageSet("il-sessions", state.sessions);
+    await storageSet("il-trash", state.trash);
+    if(rec.kind === "day"){
+      Object.keys(rec.data).forEach(exname => {
+        const ex = state.exercises.find(e => e.name === exname);
+        if(ex && ex.status === "active"){
+          PEOPLE.forEach(p => updatePlateAndCaption(ex, slug(exname), p.key));
+        }
+      });
+    } else {
+      const ex = state.exercises.find(e => e.name === rec.exname);
+      if(ex && ex.status === "active") updatePlateAndCaption(ex, slug(rec.exname), rec.person);
+    }
+    renderManage();
+    bindAll();
+  }
+
+  function historyHTML(){
+    const dates = sortedDates().slice().reverse();
+    if(dates.length === 0) return `<p class="empty">No sessions logged yet.</p>`;
+    return dates.map(d => {
       const day = state.sessions[d];
       const rows = Object.keys(day).map(exName => {
-        const tVal = day[exName].Tyler;
-        const bVal = day[exName].Beth;
-        const tCell = tVal
-          ? `${tVal.join("/")} lb<button class="mini-del" data-action="delete-entry" data-date="${d}" data-exname="${escapeHtml(exName)}" data-person="Tyler" title="Delete this entry">×</button>`
+        const ex = getExOrFallback(exName);
+        const tData = day[exName].Tyler, bData = day[exName].Beth;
+        const tCell = hasData(ex, tData)
+          ? `${formatEntry(ex, tData)}<button class="mini-del" data-action="delete-entry" data-date="${d}" data-exname="${escapeHtml(exName)}" data-person="Tyler" title="Delete this entry">×</button>`
           : "—";
-        const bCell = bVal
-          ? `${bVal.join("/")} lb<button class="mini-del" data-action="delete-entry" data-date="${d}" data-exname="${escapeHtml(exName)}" data-person="Beth" title="Delete this entry">×</button>`
+        const bCell = hasData(ex, bData)
+          ? `${formatEntry(ex, bData)}<button class="mini-del" data-action="delete-entry" data-date="${d}" data-exname="${escapeHtml(exName)}" data-person="Beth" title="Delete this entry">×</button>`
           : "—";
-        return `<tr>
-          <td class="ex">${escapeHtml(exName)}</td>
-          <td class="tag t">${tCell}</td>
-          <td class="tag b">${bCell}</td>
-        </tr>`;
+        return `<tr><td class="ex">${escapeHtml(exName)}</td><td class="tag t">${tCell}</td><td class="tag b">${bCell}</td></tr>`;
       }).join("");
       return `<div class="hist-day">
         <div class="hist-day-head">
           <span class="hist-day-date">${fmtDate(d)}</span>
           <button class="del-btn" data-action="delete-date" data-date="${d}">Delete day</button>
         </div>
-        <table>
-          <thead><tr><th>Exercise</th><th>Tyler</th><th>Beth</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
+        <table><thead><tr><th>Exercise</th><th>Tyler</th><th>Beth</th></tr></thead><tbody>${rows}</tbody></table>
       </div>`;
     }).join("");
+  }
 
+  function archivedHTML(){
+    const archived = state.exercises.filter(e => e.status === "archived");
+    if(archived.length === 0){
+      return `<p class="empty">No archived exercises yet. Tap the ⤓ icon on any card to move it here — you can still log it on a specific day from this list without adding it back to your daily grid.</p>`;
+    }
+    return `<div class="grid">${archived.map(ex => cardHTML(ex)).join("")}</div>`;
+  }
+
+  function trashHTML(){
+    if(state.trash.length === 0){
+      return `<p class="empty">Nothing in Trash. Deleted days and entries land here so you can undo them.</p>`;
+    }
+    const sorted = state.trash.slice().sort((a,b) => b.deletedAt - a.deletedAt);
+    return sorted.map(rec => {
+      const label = rec.kind === "day"
+        ? `Whole day — ${fmtDate(rec.date)}`
+        : `${escapeHtml(rec.exname)} — ${rec.person} — ${fmtDate(rec.date)}`;
+      const forever = deleteForeverHTML("trash", rec.id, label);
+      return `<div class="trash-item">
+        <div class="trash-item-head">
+          <span class="trash-label">${label}</span>
+          <button class="del-btn restore-btn" data-action="restore-trash" data-id="${rec.id}">↩ Restore</button>
+        </div>
+        ${forever}
+      </div>`;
+    }).join("");
+  }
+
+  function renderManage(){
+    const panel = document.getElementById("manage-panel");
+    if(!state.manageOpen){ panel.style.display = "none"; return; }
+    panel.style.display = "block";
+    const archivedCount = state.exercises.filter(e => e.status === "archived").length;
+    const tabsHtml = `<div class="tabs">
+      <button class="tab-btn ${state.manageTab==='history'?'active':''}" data-action="set-tab" data-tab="history">History</button>
+      <button class="tab-btn ${state.manageTab==='archived'?'active':''}" data-action="set-tab" data-tab="archived">Archived (${archivedCount})</button>
+      <button class="tab-btn ${state.manageTab==='trash'?'active':''}" data-action="set-tab" data-tab="trash">Trash (${state.trash.length})</button>
+    </div>`;
+    let body = "";
+    if(state.manageTab === "history") body = historyHTML();
+    else if(state.manageTab === "archived") body = archivedHTML();
+    else body = trashHTML();
+    document.getElementById("manage-content").innerHTML = tabsHtml + body;
+  }
+
+  function bindAll(){
+    document.querySelectorAll('[data-action="toggle-card"]').forEach(btn => {
+      bindOnce(btn, "click", () => {
+        const name = btn.dataset.exname;
+        state.expandedCards[name] = !state.expandedCards[name];
+        const ex = state.exercises.find(e => e.name === name);
+        if(ex) rerenderCard(ex);
+      });
+    });
+    document.querySelectorAll('[data-action="edit-exercise"]').forEach(btn => {
+      bindOnce(btn, "click", () => {
+        state.renaming = btn.dataset.exname;
+        const ex = state.exercises.find(e => e.name === btn.dataset.exname);
+        if(ex) rerenderCard(ex);
+      });
+    });
+    document.querySelectorAll('[data-action="cancel-rename"]').forEach(btn => {
+      bindOnce(btn, "click", () => {
+        state.renaming = null;
+        const ex = state.exercises.find(e => e.name === btn.dataset.exname);
+        if(ex) rerenderCard(ex);
+      });
+    });
+    document.querySelectorAll('[data-action="save-rename"]').forEach(btn => {
+      bindOnce(btn, "click", async () => {
+        const oldName = btn.dataset.exname;
+        const domKey = slug(oldName);
+        const newName = document.getElementById(`rn-name-${domKey}`).value.trim();
+        const newEquip = document.getElementById(`rn-equip-${domKey}`).value.trim();
+        if(!newName) return;
+        await renameExercise(oldName, newName, newEquip);
+        state.renaming = null;
+        const ex = state.exercises.find(e => e.name === newName);
+        if(ex) replaceCardDom(oldName, ex);
+        if(state.manageOpen){ renderManage(); bindAll(); }
+      });
+    });
+    document.querySelectorAll('[data-action="archive-exercise"]').forEach(btn => {
+      bindOnce(btn, "click", () => archiveExercise(btn.dataset.exname));
+    });
+    document.querySelectorAll('[data-action="restore-exercise"]').forEach(btn => {
+      bindOnce(btn, "click", () => restoreExercise(btn.dataset.exname));
+    });
+    document.querySelectorAll('[data-action="save"]').forEach(btn => {
+      bindOnce(btn, "click", () => saveRow(btn.dataset.exname, btn.dataset.person));
+    });
+    document.querySelectorAll('[data-action="copy"]').forEach(btn => {
+      bindOnce(btn, "click", () => {
+        const exname = btn.dataset.exname, person = btn.dataset.person, domKey = slug(exname);
+        const s1 = document.getElementById(`s-${domKey}-${person}-1`).value.trim();
+        if(s1 === "") return;
+        [2,3,4].forEach(n => { document.getElementById(`s-${domKey}-${person}-${n}`).value = s1; });
+      });
+    });
+    document.querySelectorAll('[data-action="copy-reps"]').forEach(btn => {
+      bindOnce(btn, "click", () => {
+        const exname = btn.dataset.exname, person = btn.dataset.person, domKey = slug(exname);
+        const w1 = document.getElementById(`r-w-${domKey}-${person}-1`).value;
+        const r1 = document.getElementById(`r-r-${domKey}-${person}-1`).value;
+        if(w1.trim()==="" && r1.trim()==="") return;
+        [2,3,4].forEach(n => {
+          document.getElementById(`r-w-${domKey}-${person}-${n}`).value = w1;
+          document.getElementById(`r-r-${domKey}-${person}-${n}`).value = r1;
+        });
+      });
+    });
     document.querySelectorAll('[data-action="delete-date"]').forEach(btn => {
-      btn.addEventListener("click", () => deleteDate(btn.dataset.date));
+      bindOnce(btn, "click", () => deleteDate(btn.dataset.date));
     });
     document.querySelectorAll('[data-action="delete-entry"]').forEach(btn => {
-      btn.addEventListener("click", () => deleteEntry(btn.dataset.date, btn.dataset.exname, btn.dataset.person));
+      bindOnce(btn, "click", () => deleteEntry(btn.dataset.date, btn.dataset.exname, btn.dataset.person));
+    });
+    document.querySelectorAll('[data-action="restore-trash"]').forEach(btn => {
+      bindOnce(btn, "click", () => restoreTrash(btn.dataset.id));
+    });
+    document.querySelectorAll('[data-action="set-tab"]').forEach(btn => {
+      bindOnce(btn, "click", () => { state.manageTab = btn.dataset.tab; renderManage(); bindAll(); });
+    });
+    document.querySelectorAll('[data-action="show-forever"]').forEach(btn => {
+      bindOnce(btn, "click", () => { state.confirmForever[btn.dataset.key] = true; renderManage(); bindAll(); });
+    });
+    document.querySelectorAll('[data-action="hide-forever"]').forEach(btn => {
+      bindOnce(btn, "click", () => { delete state.confirmForever[btn.dataset.key]; renderManage(); bindAll(); });
+    });
+    document.querySelectorAll('.forever-input').forEach(inp => {
+      bindOnce(inp, "input", () => {
+        const key = inp.dataset.foreverKey;
+        const btn = document.querySelector(`[data-action="confirm-forever"][data-key="${CSS.escape(key)}"]`);
+        if(btn) btn.disabled = inp.value.trim().toUpperCase() !== "DELETE";
+      });
+    });
+    document.querySelectorAll('[data-action="confirm-forever"]').forEach(btn => {
+      bindOnce(btn, "click", async () => {
+        const kind = btn.dataset.kind, id = btn.dataset.id;
+        if(kind === "ex"){
+          state.exercises = state.exercises.filter(e => e.name !== id);
+          await storageSet("il-exercises", state.exercises);
+        } else if(kind === "trash"){
+          state.trash = state.trash.filter(r => String(r.id) !== id);
+          await storageSet("il-trash", state.trash);
+        }
+        delete state.confirmForever[kind + ":" + id];
+        renderManage();
+        bindAll();
+      });
     });
   }
 
-  async function deleteDate(date){
-    const ok = confirm("Delete the entire " + fmtDate(date) + " session? This can't be undone.");
-    if(!ok) return;
-    delete state.sessions[date];
-    await storageSet("il-sessions", state.sessions);
-    renderHistory();
-    renderGrid();
-  }
-
-  async function deleteEntry(date, exname, person){
-    if(!state.sessions[date] || !state.sessions[date][exname]) return;
-    delete state.sessions[date][exname][person];
-    if(Object.keys(state.sessions[date][exname]).length === 0){
-      delete state.sessions[date][exname];
-    }
-    if(Object.keys(state.sessions[date]).length === 0){
-      delete state.sessions[date];
-    }
-    await storageSet("il-sessions", state.sessions);
-    renderHistory();
-    renderGrid();
-  }
-
-  function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, c => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  // ---- header controls ----
   document.getElementById("date-input").addEventListener("change", (e) => {
     state.date = e.target.value || todayStr();
-    render();
+    state.exercises.filter(ex => ex.status === "active").forEach(ex => {
+      PEOPLE.forEach(p => updatePlateAndCaption(ex, slug(ex.name), p.key));
+    });
+    if(state.manageOpen){ renderManage(); bindAll(); }
   });
 
-  document.getElementById("hist-toggle").addEventListener("click", () => {
-    state.historyOpen = !state.historyOpen;
-    document.getElementById("hist-panel").style.display = state.historyOpen ? "block" : "none";
-    document.getElementById("hist-toggle").textContent = state.historyOpen ? "Hide History" : "History";
+  document.getElementById("manage-toggle").addEventListener("click", () => {
+    state.manageOpen = !state.manageOpen;
+    document.getElementById("manage-toggle").textContent = state.manageOpen ? "Hide Manage" : "Manage";
+    renderManage();
+    bindAll();
   });
 
   document.getElementById("add-today-btn").addEventListener("click", () => {
     state.date = todayStr();
     document.getElementById("date-input").value = state.date;
-    state.exercises.forEach(ex => { state.expandedCards[ex.name] = true; });
-    renderGrid();
+    state.exercises.filter(e => e.status === "active").forEach(ex => { state.expandedCards[ex.name] = true; });
+    renderApp();
     document.getElementById("grid").scrollIntoView({behavior:"smooth", block:"start"});
   });
 
   document.getElementById("expand-all-btn").addEventListener("click", () => {
-    state.exercises.forEach(ex => { state.expandedCards[ex.name] = true; });
-    renderGrid();
+    state.exercises.filter(e => e.status === "active").forEach(ex => { state.expandedCards[ex.name] = true; });
+    renderApp();
   });
 
   document.getElementById("collapse-all-btn").addEventListener("click", () => {
     state.expandedCards = {};
-    renderGrid();
+    renderApp();
   });
 
-  // ---- add exercise ----
   document.getElementById("add-toggle").addEventListener("click", () => {
     state.addOpen = !state.addOpen;
     const holder = document.getElementById("add-form-holder");
     if(!state.addOpen){ holder.innerHTML = ""; return; }
     holder.innerHTML = `<div class="card add-form" style="margin-top:10px;">
-      <input type="text" id="new-ex-name" placeholder="Exercise name (e.g. Lat Raise)">
+      <input type="text" id="new-ex-name" placeholder="Exercise name (e.g. Walk, Dumbbell Curls)">
       <input type="text" id="new-ex-equip" placeholder="Equipment (optional)">
+      <div class="type-choice">
+        <label><input type="radio" name="new-ex-type" value="strength" checked> Weight only (sets)</label>
+        <label><input type="radio" name="new-ex-type" value="reps"> Weight + reps (sets)</label>
+        <label><input type="radio" name="new-ex-type" value="cardio"> Cardio (incline &amp; speed)</label>
+      </div>
       <div class="btnrow">
         <button class="copy-btn" id="new-ex-cancel">Cancel</button>
         <button class="save-btn" style="--pcolor:var(--warn)" id="new-ex-save">Add exercise</button>
@@ -633,17 +1218,24 @@
     document.getElementById("new-ex-save").addEventListener("click", async () => {
       const name = document.getElementById("new-ex-name").value.trim();
       const equip = document.getElementById("new-ex-equip").value.trim();
+      const typeEl = document.querySelector('input[name="new-ex-type"]:checked');
+      const type = typeEl ? typeEl.value : "strength";
       if(!name) return;
-      state.exercises.push({name, equipment: equip});
+      if(state.exercises.some(e => e.name === name)){
+        alert('You already have an exercise named "' + name + '".');
+        return;
+      }
+      const newEx = {name, equipment: equip, type, status:"active"};
+      state.exercises.push(newEx);
       await storageSet("il-exercises", state.exercises);
       state.addOpen = false;
       holder.innerHTML = "";
-      renderGrid();
+      document.getElementById("grid").insertAdjacentHTML("beforeend", cardHTML(newEx));
+      bindAll();
     });
   });
 
   init();
-})();
 </script>
 </body>
 </html>
