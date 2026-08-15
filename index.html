@@ -66,6 +66,16 @@
     font-family:var(--font-mono);font-size:13px;padding:6px 10px;border-radius:8px;
   }
   .header-btns{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+  .share-panel{
+    margin-bottom:16px;background:var(--card);border:1px solid var(--card-edge);border-radius:var(--radius);
+    padding:14px 16px;
+  }
+  .share-label{font-size:12px;color:var(--chalk-dim);margin:0 0 10px;}
+  .share-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .share-input{
+    flex:1;min-width:200px;background:var(--ink);border:1px solid var(--card-edge);color:var(--chalk);
+    font-family:var(--font-mono);font-size:12px;padding:9px 10px;border-radius:8px;
+  }
   .hist-btn{
     background:none;border:1px solid var(--card-edge);color:var(--chalk-dim);
     font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
@@ -282,11 +292,14 @@
       <label for="date-input">Session date</label>
       <input type="date" id="date-input">
       <div class="header-btns">
+        <button class="hist-btn" id="share-toggle">Share</button>
         <button class="hist-btn" id="history-toggle">History</button>
         <button class="hist-btn" id="manage-toggle">Manage</button>
       </div>
     </div>
   </header>
+
+  <div id="share-box" style="display:none;"></div>
 
   <div class="today-cta-row">
     <button class="today-cta" id="add-today-btn">+ Add Today's Workout</button>
@@ -417,6 +430,11 @@
     if(!iso) return "";
     const [y,m,d] = iso.split("-");
     return m+"/"+d;
+  }
+  function getViewOnlyUrl(){
+    const url = new URL(window.location.origin + window.location.pathname);
+    url.searchParams.set("view", "1");
+    return url.toString();
   }
   function setSyncStatus(kind, text){
     const el = document.getElementById("sync-status");
@@ -673,6 +691,7 @@
     if(state.viewOnly){
       document.getElementById("add-toggle").style.display = "none";
       document.getElementById("add-today-btn").style.display = "none";
+      document.getElementById("share-toggle").style.display = "none";
       const badge = document.createElement("p");
       badge.className = "sync-status off";
       badge.textContent = "👀 View only";
@@ -1416,6 +1435,42 @@
       PEOPLE.forEach(p => updatePlateAndCaption(ex, slug(ex.name), p.key));
     });
     refreshPanels();
+  });
+
+  document.getElementById("share-toggle").addEventListener("click", () => {
+    const box = document.getElementById("share-box");
+    const isOpen = box.style.display !== "none";
+    if(isOpen){
+      box.style.display = "none";
+      box.innerHTML = "";
+      return;
+    }
+    const link = getViewOnlyUrl();
+    box.innerHTML = `<div class="share-panel">
+      <p class="share-label">View-only link — anyone with this can watch live, but can't save, delete, or change anything.</p>
+      <div class="share-row">
+        <input type="text" class="share-input" id="share-link-input" value="${escapeHtml(link)}" readonly>
+        <button class="save-btn" style="--pcolor:var(--good)" id="share-copy-btn">Copy</button>
+      </div>
+      <span class="flash" id="share-flash"></span>
+    </div>`;
+    box.style.display = "block";
+
+    const input = document.getElementById("share-link-input");
+    input.focus();
+    input.select();
+
+    document.getElementById("share-copy-btn").addEventListener("click", async () => {
+      const flash = document.getElementById("share-flash");
+      try{
+        await navigator.clipboard.writeText(link);
+        flashMsg(flash, "Copied ✓", "var(--good)");
+      }catch(e){
+        input.focus();
+        input.select();
+        flashMsg(flash, "Couldn't auto-copy — tap the link to select it", "var(--warn)");
+      }
+    });
   });
 
   document.getElementById("history-toggle").addEventListener("click", () => {
