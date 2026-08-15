@@ -96,8 +96,14 @@
     border-radius:var(--radius);
     padding:16px 16px 14px;
   }
+  .card.dragging{opacity:.88;box-shadow:0 10px 24px rgba(0,0,0,0.45);border-color:var(--warn);}
   .card-archived{opacity:.88;border-style:dashed;}
-  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .card-top{display:flex;align-items:flex-start;gap:8px;justify-content:space-between;}
+  .drag-handle{
+    background:none;border:none;color:var(--iron);font-size:17px;line-height:1;cursor:grab;
+    padding:4px 4px;flex-shrink:0;touch-action:none;align-self:flex-start;margin-top:2px;
+  }
+  .drag-handle:active{cursor:grabbing;color:var(--warn);}
   .card-toggle{
     display:flex;align-items:flex-start;gap:10px;background:none;border:none;color:var(--chalk);
     cursor:pointer;text-align:left;padding:0;flex:1;min-width:0;
@@ -200,12 +206,15 @@
   .type-choice label{display:flex;align-items:center;gap:8px;cursor:pointer;}
 
   .panel{margin-top:22px;border-top:1px dashed var(--iron-dim);padding-top:16px;}
-  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
   .tab-btn{
     background:none;border:1px solid var(--card-edge);color:var(--chalk-dim);font-family:var(--font-mono);
     font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:8px 12px;border-radius:8px;cursor:pointer;
   }
   .tab-btn.active{border-color:var(--chalk-dim);color:var(--chalk);background:var(--ink-2);}
+  .export-btn{margin-left:auto;border-color:var(--good);color:var(--good);}
+  .export-btn:hover{background:rgba(155,194,124,0.1);}
+  .export-hint{font-size:11px;color:var(--iron);margin:-6px 0 14px;}
 
   table{width:100%;border-collapse:collapse;font-size:12.5px;}
   th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--card-edge);}
@@ -253,6 +262,7 @@
     .cardio-fields{grid-template-columns:repeat(1,1fr);}
     .sets-reps{grid-template-columns:repeat(1,1fr);}
     .plate{width:46px;height:46px;}
+    .export-btn{margin-left:0;}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition:none !important;}
@@ -364,6 +374,9 @@
     _bound.add(el);
   }
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const VIEW_ONLY = urlParams.get("view") === "1" || urlParams.get("view") === "true";
+
   const state = {
     exercises: [],
     sessions: {},
@@ -379,7 +392,8 @@
     historyListCount: 3,
     calendarMonth: null,
     calendarSelected: null,
-    addOpen: false
+    addOpen: false,
+    viewOnly: VIEW_ONLY
   };
 
   function todayStr(){
@@ -629,9 +643,6 @@
       await storageSet("il-migrated-v2", true);
     }
 
-    // v3: merge the old separate "reps" type into "strength" (every
-    // weight-based exercise can now optionally carry reps per set), and
-    // convert any legacy plain-number-array session data into {w,r} objects.
     const migratedV3 = await storageGet("il-migrated-v3", null);
     if(!migratedV3){
       state.exercises = state.exercises.map(e => {
@@ -658,6 +669,16 @@
     if(migrated) await storageSet("il-exercises", state.exercises);
 
     document.getElementById("date-input").value = state.date;
+
+    if(state.viewOnly){
+      document.getElementById("add-toggle").style.display = "none";
+      document.getElementById("add-today-btn").style.display = "none";
+      const badge = document.createElement("p");
+      badge.className = "sync-status off";
+      badge.textContent = "👀 View only";
+      document.querySelector(".eyebrow-row").appendChild(badge);
+    }
+
     renderApp();
     setupRealtimeSync();
   }
@@ -668,9 +689,11 @@
     onValue(ref(db, "iron-log/il-exercises"), (snap) => {
       const val = snap.val();
       if(!val) return;
-      state.exercises = val;
-      renderGrid();
-      refreshPanels();
+      if(!dragState) {
+        state.exercises = val;
+        renderGrid();
+        refreshPanels();
+      }
     });
 
     onValue(ref(db, "iron-log/il-sessions"), (snap) => {
@@ -720,9 +743,9 @@
       </div>`;
     }
     return `<div class="forever-confirm">
-      <p class="forever-warning">This permanently deletes "${escapeHtml(displayName)}" — can't be undone. Type DELETE to confirm.</p>
+      <p class="forever-warning">This permanently deletes "${escapeHtml(displayName)}" — can't be undone. Type delete to confirm.</p>
       <div class="forever-row">
-        <input type="text" class="forever-input" data-forever-key="${escapeHtml(key)}" placeholder="DELETE">
+        <input type="text" class="forever-input" data-forever-key="${escapeHtml(key)}" placeholder="delete">
         <button class="forever-btn" data-action="confirm-forever" data-key="${escapeHtml(key)}" data-kind="${kind}" data-id="${escapeHtml(id)}" disabled>Delete forever</button>
         <button class="copy-btn" data-action="hide-forever" data-key="${escapeHtml(key)}">Cancel</button>
       </div>
@@ -734,6 +757,10 @@
     const domKey = slug(ex.name);
     const isRenaming = state.renaming === ex.name;
     const plates = PEOPLE.map(p => plateHTML(ex, p)).join("");
+
+    const dragHandle = (!isRenaming && ex.status === "active" && !state.viewOnly)
+      ? `<button class="drag-handle" data-action="drag-handle" data-exname="${escapeHtml(ex.name)}" aria-label="Drag to reorder" title="Drag to reorder">⠿</button>`
+      : "";
 
     const nameBlock = isRenaming
       ? `<div class="rename-form">
@@ -752,7 +779,7 @@
           </span>
         </button>`;
 
-    const actionBtns = isRenaming ? "" : (
+    const actionBtns = (isRenaming || state.viewOnly) ? "" : (
       ex.status === "archived"
         ? `<button class="ex-icon-btn" data-action="restore-exercise" data-exname="${escapeHtml(ex.name)}" title="Restore to daily list">↩</button>
            <button class="ex-icon-btn" data-action="edit-exercise" data-exname="${escapeHtml(ex.name)}" title="Edit name">✎</button>`
@@ -764,10 +791,11 @@
       ? `<div class="card-body">${PEOPLE.map(p => personBlockHTML(ex, domKey, p)).join("")}</div>`
       : "";
 
-    const foreverBlock = (ex.status === "archived" && !isRenaming) ? deleteForeverHTML("ex", ex.name, ex.name) : "";
+    const foreverBlock = (ex.status === "archived" && !isRenaming && !state.viewOnly) ? deleteForeverHTML("ex", ex.name, ex.name) : "";
 
-    return `<div class="card ${ex.status==='archived' ? 'card-archived' : ''}" id="card-${domKey}">
+    return `<div class="card ${ex.status==='archived' ? 'card-archived' : ''}" id="card-${domKey}" data-exname="${escapeHtml(ex.name)}">
       <div class="card-top">
+        ${dragHandle}
         ${nameBlock}
         <div class="card-top-right">
           ${!isRenaming ? `<div class="plates">${plates}</div>` : ""}
@@ -784,17 +812,18 @@
     const lastStr = latest ? (fmtDate(latest.date) + " · " + formatEntry(ex, latest.data)) : "no data logged yet";
 
     let fieldsHtml, hint, copyBtn;
+    const dis = state.viewOnly ? "disabled" : "";
 
     if(ex.type === "cardio"){
       const prefIncline = latest && latest.data.incline != null ? latest.data.incline : "";
       const prefSpeed = latest && latest.data.speed != null ? latest.data.speed : "";
       fieldsHtml = `<div class="cardio-fields">
         <div class="set-field"><label for="c-incline-${domKey}-${p.key}">Incline %</label>
-          <input type="number" step="0.5" inputmode="decimal" id="c-incline-${domKey}-${p.key}" value="${prefIncline}" placeholder="–"></div>
+          <input type="number" step="0.5" inputmode="decimal" id="c-incline-${domKey}-${p.key}" value="${prefIncline}" placeholder="–" ${dis}></div>
         <div class="set-field"><label for="c-speed-${domKey}-${p.key}">Speed mph</label>
-          <input type="number" step="0.1" inputmode="decimal" id="c-speed-${domKey}-${p.key}" value="${prefSpeed}" placeholder="–"></div>
+          <input type="number" step="0.1" inputmode="decimal" id="c-speed-${domKey}-${p.key}" value="${prefSpeed}" placeholder="–" ${dis}></div>
         <div class="set-field"><label for="c-duration-${domKey}-${p.key}">Duration min</label>
-          <input type="number" step="1" inputmode="decimal" id="c-duration-${domKey}-${p.key}" placeholder="–"></div>
+          <input type="number" step="1" inputmode="decimal" id="c-duration-${domKey}-${p.key}" placeholder="–" ${dis}></div>
       </div>`;
       hint = `<p class="hint">Speed or incline alone is enough to save — duration is optional.</p>`;
       copyBtn = "";
@@ -806,14 +835,23 @@
         <div class="set-field-pair">
           <label>Set ${n}</label>
           <div class="pair-inputs">
-            <input type="number" step="2.5" inputmode="decimal" id="w-${domKey}-${p.key}-${n}" value="${n===1 && prefW!=='' ? prefW : ''}" placeholder="lb">
+            <input type="number" step="2.5" inputmode="decimal" id="w-${domKey}-${p.key}-${n}" value="${n===1 && prefW!=='' ? prefW : ''}" placeholder="lb" ${dis}>
             <span class="x">×</span>
-            <input type="number" step="1" inputmode="decimal" id="rp-${domKey}-${p.key}-${n}" value="${n===1 && prefR!=='' ? prefR : ''}" placeholder="reps">
+            <input type="number" step="1" inputmode="decimal" id="rp-${domKey}-${p.key}-${n}" value="${n===1 && prefR!=='' ? prefR : ''}" placeholder="reps" ${dis}>
           </div>
         </div>`).join("") + `</div>`;
       hint = `<p class="hint">Only Set 1's weight is required. Reps are optional — add them whenever you want to track them, skip them when you don't.</p>`;
       copyBtn = `<button class="copy-btn" data-action="copy" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Same → all sets</button>`;
     }
+
+    const actionsOrNote = state.viewOnly
+      ? `<p class="hint">View only — ask Tyler or Beth to log this.</p>`
+      : `<div class="row-actions">
+          <button class="save-btn" style="--pcolor:${p.color}" data-action="save" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Save ${p.key}'s ${ex.type==='cardio' ? 'walk' : 'sets'}</button>
+          ${copyBtn}
+          <span class="flash" id="flash-${domKey}-${p.key}"></span>
+        </div>
+        ${hint}`;
 
     return `<div class="person-block" style="--pcolor:${p.color}">
       <div class="pb-head">
@@ -821,12 +859,7 @@
         <span class="last" id="last-${domKey}-${p.key}">${lastStr}</span>
       </div>
       ${fieldsHtml}
-      <div class="row-actions">
-        <button class="save-btn" style="--pcolor:${p.color}" data-action="save" data-exname="${escapeHtml(ex.name)}" data-person="${p.key}">Save ${p.key}'s ${ex.type==='cardio' ? 'walk' : 'sets'}</button>
-        ${copyBtn}
-        <span class="flash" id="flash-${domKey}-${p.key}"></span>
-      </div>
-      ${hint}
+      ${actionsOrNote}
     </div>`;
   }
 
@@ -1013,17 +1046,17 @@
       const ex = getExOrFallback(exName);
       const tData = day[exName].Tyler, bData = day[exName].Beth;
       const tCell = hasData(ex, tData)
-        ? `${formatEntry(ex, tData)}<button class="mini-del" data-action="delete-entry" data-date="${date}" data-exname="${escapeHtml(exName)}" data-person="Tyler" title="Delete this entry">×</button>`
+        ? `${formatEntry(ex, tData)}${state.viewOnly ? "" : `<button class="mini-del" data-action="delete-entry" data-date="${date}" data-exname="${escapeHtml(exName)}" data-person="Tyler" title="Delete this entry">×</button>`}`
         : "—";
       const bCell = hasData(ex, bData)
-        ? `${formatEntry(ex, bData)}<button class="mini-del" data-action="delete-entry" data-date="${date}" data-exname="${escapeHtml(exName)}" data-person="Beth" title="Delete this entry">×</button>`
+        ? `${formatEntry(ex, bData)}${state.viewOnly ? "" : `<button class="mini-del" data-action="delete-entry" data-date="${date}" data-exname="${escapeHtml(exName)}" data-person="Beth" title="Delete this entry">×</button>`}`
         : "—";
       return `<tr><td class="ex">${escapeHtml(exName)}</td><td class="tag t">${tCell}</td><td class="tag b">${bCell}</td></tr>`;
     }).join("");
     return `<div class="hist-day">
       <div class="hist-day-head">
         <span class="hist-day-date">${fmtDate(date)}</span>
-        <button class="del-btn" data-action="delete-date" data-date="${date}">Delete day</button>
+        ${state.viewOnly ? "" : `<button class="del-btn" data-action="delete-date" data-date="${date}">Delete day</button>`}
       </div>
       <table><thead><tr><th>Exercise</th><th>Tyler</th><th>Beth</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
@@ -1094,7 +1127,9 @@
     const viewToggle = `<div class="tabs">
       <button class="tab-btn ${state.historyView==='list'?'active':''}" data-action="set-history-view" data-view="list">List</button>
       <button class="tab-btn ${state.historyView==='calendar'?'active':''}" data-action="set-history-view" data-view="calendar">Calendar</button>
-    </div>`;
+      <button class="tab-btn export-btn" data-action="export-csv">⬇ Export CSV</button>
+    </div>
+    <p class="export-hint">Opens in Excel or Google Sheets, or paste it straight into an AI chat for insights.</p>`;
     const body = state.historyView === 'calendar' ? calendarHTML() : historyListHTML();
     document.getElementById("history-content").innerHTML = viewToggle + body;
   }
@@ -1116,11 +1151,11 @@
       const label = rec.kind === "day"
         ? `Whole day — ${fmtDate(rec.date)}`
         : `${escapeHtml(rec.exname)} — ${rec.person} — ${fmtDate(rec.date)}`;
-      const forever = deleteForeverHTML("trash", rec.id, label);
+      const forever = state.viewOnly ? "" : deleteForeverHTML("trash", rec.id, label);
       return `<div class="trash-item">
         <div class="trash-item-head">
           <span class="trash-label">${label}</span>
-          <button class="del-btn restore-btn" data-action="restore-trash" data-id="${rec.id}">↩ Restore</button>
+          ${state.viewOnly ? "" : `<button class="del-btn restore-btn" data-action="restore-trash" data-id="${rec.id}">↩ Restore</button>`}
         </div>
         ${forever}
       </div>`;
@@ -1142,7 +1177,123 @@
     document.getElementById("manage-content").innerHTML = tabsHtml + body;
   }
 
+  // ---- CSV export ----
+  function csvEscape(val){
+    const s = String(val === null || val === undefined ? "" : val);
+    if(s.includes(",") || s.includes('"') || s.includes("\n")){
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+  function buildCsv(){
+    const rows = [["Date","Exercise","Equipment","Type","Person","Set","Weight (lb)","Reps","Incline (%)","Speed (mph)","Duration (min)"]];
+    sortedDates().forEach(date => {
+      const day = state.sessions[date];
+      Object.keys(day).forEach(exName => {
+        const ex = getExOrFallback(exName);
+        PEOPLE.forEach(p => {
+          const data = day[exName][p.key];
+          if(!hasData(ex, data)) return;
+          if(ex.type === "cardio"){
+            rows.push([date, exName, ex.equipment||"", ex.type, p.key, "", "", "",
+              data.incline != null ? data.incline : "",
+              data.speed != null ? data.speed : "",
+              data.duration != null ? data.duration : ""]);
+          } else {
+            data.forEach((set, i) => {
+              rows.push([date, exName, ex.equipment||"", ex.type, p.key, i+1, set.w, set.r != null ? set.r : "", "", "", ""]);
+            });
+          }
+        });
+      });
+    });
+    return rows.map(r => r.map(csvEscape).join(",")).join("\r\n");
+  }
+  function downloadCsv(){
+    const csv = buildCsv();
+    const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "iron-log-history-" + todayStr() + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ---- Drag-to-reorder (pointer events; works for touch and mouse) ----
+  let dragState = null;
+
+  function onDragStart(e, handle){
+    e.preventDefault();
+    const card = handle.closest('.card');
+    if(!card) return;
+    dragState = { cardEl: card, startY: e.clientY };
+    card.classList.add('dragging');
+    card.style.position = 'relative';
+    card.style.zIndex = '50';
+    document.addEventListener('pointermove', onDragMove);
+    document.addEventListener('pointerup', onDragEnd);
+  }
+
+  function onDragMove(e){
+    if(!dragState) return;
+    const dy = e.clientY - dragState.startY;
+    dragState.cardEl.style.transform = `translateY(${dy}px)`;
+
+    const grid = document.getElementById('grid');
+    const cards = Array.from(grid.children);
+    const idx = cards.indexOf(dragState.cardEl);
+    if(idx === -1) return;
+
+    if(idx > 0){
+      const prev = cards[idx-1];
+      const prevRect = prev.getBoundingClientRect();
+      if(e.clientY < prevRect.top + prevRect.height/2){
+        grid.insertBefore(dragState.cardEl, prev);
+        dragState.startY = e.clientY;
+        dragState.cardEl.style.transform = 'translateY(0px)';
+        return;
+      }
+    }
+    if(idx < cards.length - 1){
+      const next = cards[idx+1];
+      const nextRect = next.getBoundingClientRect();
+      if(e.clientY > nextRect.top + nextRect.height/2){
+        grid.insertBefore(dragState.cardEl, next.nextSibling);
+        dragState.startY = e.clientY;
+        dragState.cardEl.style.transform = 'translateY(0px)';
+        return;
+      }
+    }
+  }
+
+  async function onDragEnd(){
+    if(!dragState) return;
+    const cardEl = dragState.cardEl;
+    cardEl.style.transform = '';
+    cardEl.style.position = '';
+    cardEl.style.zIndex = '';
+    cardEl.classList.remove('dragging');
+    document.removeEventListener('pointermove', onDragMove);
+    document.removeEventListener('pointerup', onDragEnd);
+    dragState = null;
+
+    const grid = document.getElementById('grid');
+    const newOrderNames = Array.from(grid.children).map(el => el.dataset.exname).filter(Boolean);
+    const activeByName = {};
+    state.exercises.filter(e => e.status === 'active').forEach(e => { activeByName[e.name] = e; });
+    const reorderedActive = newOrderNames.map(name => activeByName[name]).filter(Boolean);
+    const archivedExercises = state.exercises.filter(e => e.status === 'archived');
+    state.exercises = [...reorderedActive, ...archivedExercises];
+    await storageSet("il-exercises", state.exercises);
+  }
+
   function bindAll(){
+    document.querySelectorAll('[data-action="drag-handle"]').forEach(handle => {
+      bindOnce(handle, "pointerdown", (e) => onDragStart(e, handle));
+    });
     document.querySelectorAll('[data-action="toggle-card"]').forEach(btn => {
       bindOnce(btn, "click", () => {
         const name = btn.dataset.exname;
@@ -1226,6 +1377,9 @@
     });
     document.querySelectorAll('[data-action="cal-pick-day"]').forEach(btn => {
       bindOnce(btn, "click", () => { state.calendarSelected = btn.dataset.date; renderHistoryPanel(); bindAll(); });
+    });
+    document.querySelectorAll('[data-action="export-csv"]').forEach(btn => {
+      bindOnce(btn, "click", downloadCsv);
     });
     document.querySelectorAll('[data-action="show-forever"]').forEach(btn => {
       bindOnce(btn, "click", () => { state.confirmForever[btn.dataset.key] = true; refreshPanels(); });
